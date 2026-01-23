@@ -41,18 +41,23 @@ export function generateHTML(
 
   // Add schema markup if enabled
   if (includeSchema) {
-    sections.push(generateArticleSchema(blogTitle, blogDate, authorName));
+    const schema = generateArticleSchema(blogTitle, blogDate, authorName);
+    console.log("Generated schema markup:", schema.length, "characters");
+    sections.push(schema);
   }
 
   // Generate HTML for each section
   for (const section of parsed.sections) {
     const html = generateSectionHTML(section, includeImages, imageUrls);
+    console.log(`Section ${section.id} (${section.name}): generated ${html.length} characters`);
     if (html) {
       sections.push(html);
     }
   }
 
-  return sections.join("\n\n");
+  const result = sections.join("\n\n");
+  console.log("Total HTML output:", result.length, "characters from", sections.length, "sections");
+  return result;
 }
 
 /**
@@ -64,6 +69,16 @@ function generateSectionHTML(
   imageUrls: Record<string, string>
 ): string {
   const { id, rawContent, rule, lines } = section;
+
+  // Verify section data
+  if (!id) {
+    console.warn("Section has no ID");
+    return "";
+  }
+  if (!rawContent && lines.length === 0) {
+    console.warn(`Section ${id} has no content`);
+    return "";
+  }
 
   switch (id) {
     case "section1":
@@ -103,6 +118,7 @@ function generateSectionHTML(
       return `<p class="text-lg font-semibold text-center mt-8">${escapeHTML(rawContent)}</p>`;
 
     default:
+      console.warn(`Unknown section ID: ${id}. Valid sections are section1-section12.`);
       return "";
   }
 }
