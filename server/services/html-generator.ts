@@ -41,18 +41,23 @@ export function generateHTML(
 
   // Add schema markup if enabled
   if (includeSchema) {
-    sections.push(generateArticleSchema(blogTitle, blogDate, authorName));
+    const schema = generateArticleSchema(blogTitle, blogDate, authorName);
+    console.log("Generated schema markup:", schema.length, "characters");
+    sections.push(schema);
   }
 
   // Generate HTML for each section
   for (const section of parsed.sections) {
     const html = generateSectionHTML(section, includeImages, imageUrls);
+    console.log(`Section ${section.id} (${section.name}): generated ${html.length} characters`);
     if (html) {
       sections.push(html);
     }
   }
 
-  return sections.join("\n\n");
+  const result = sections.join("\n\n");
+  console.log("Total HTML output:", result.length, "characters from", sections.length, "sections");
+  return result;
 }
 
 /**
