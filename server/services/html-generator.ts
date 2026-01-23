@@ -97,13 +97,13 @@ function generateSectionHTML(
       return generateSectionBody(rawContent, includeImages, section, imageUrls);
 
     case "section6":
-      return `<blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-700">${escapeHTML(rawContent)}</blockquote>`;
+      return `<blockquote>${escapeHTML(rawContent)}</blockquote>`;
 
     case "section7":
       return generateComparisonTable(lines);
 
     case "section8":
-      return `<blockquote class="border-l-4 border-green-500 pl-4 italic">${escapeHTML(rawContent)}</blockquote>`;
+      return `<blockquote>${escapeHTML(rawContent)}</blockquote>`;
 
     case "section9":
       return generateList(lines, "ol", "Steps");
@@ -115,7 +115,7 @@ function generateSectionHTML(
       return generateFAQSection(lines);
 
     case "section12":
-      return `<p class="text-lg font-semibold text-center mt-8">${escapeHTML(rawContent)}</p>`;
+      return `<p>${escapeHTML(rawContent)}</p>`;
 
     default:
       console.warn(`Unknown section ID: ${id}. Valid sections are section1-section12.`);
@@ -133,7 +133,7 @@ function generateHero(
   section: ParsedSection,
   imageUrls: Record<string, string>
 ): string {
-  const h1 = `<h1 class="text-4xl font-bold mb-4">${escapeHTML(content)}</h1>`;
+  const h1 = `<h1>${escapeHTML(content)}</h1>`;
 
   if (includeImages && rule.image?.position === "after" && section.images && section.images.length > 0) {
     const image = section.images[0];
@@ -159,10 +159,10 @@ function generateList(
   const tag = listType === "ul" ? "ul" : "ol";
   const items = lines.map((line) => `<li>${escapeHTML(line)}</li>`).join("\n");
 
-  let html = `<${tag} class="space-y-2">\n${items}\n</${tag}>`;
+  let html = `<${tag}>\n${items}\n</${tag}>`;
 
   if (title) {
-    html = `<h2 class="text-2xl font-bold mb-4">${title}</h2>\n${html}`;
+    html = `<h2>${title}</h2>\n${html}`;
   }
 
   return html;
@@ -193,14 +193,14 @@ function generateSectionBody(
         lines[0].length < 60 &&
         (lines[0].endsWith(":") || lines[0] === lines[0].toUpperCase())
       ) {
-        result += `<h2 class="text-2xl font-bold mt-6 mb-4">${escapeHTML(lines[0])}</h2>\n`;
+        result += `<h2>${escapeHTML(lines[0])}</h2>\n`;
         lines.shift();
       }
 
       // Rest of content
       const bodyText = lines.join("\n").trim();
       if (bodyText) {
-        result += `<p class="text-base leading-relaxed">${escapeHTML(bodyText)}</p>`;
+        result += `<p>${escapeHTML(bodyText)}</p>`;
       }
 
       // Add image if enabled and available
@@ -209,7 +209,7 @@ function generateSectionBody(
         console.log(`Looking for image keyword: "${image.keyword}" in section`);
         const imageUrl = imageUrls[image.keyword] || "/placeholder-section.jpg";
         console.log(`Resolved image URL for section: ${imageUrl}`);
-        result += `\n<img src="${imageUrl}" alt="${image.keyword}" class="rounded-lg my-4" />`;
+        result += `\n<img src="${imageUrl}" alt="${image.keyword}" />`;
         imageIndex++;
       }
 
@@ -232,12 +232,12 @@ function generateComparisonTable(lines: string[]): string {
   const headers = lines[0].split("|").map((h) => h.trim());
   const rows = lines.slice(1).map((line) => line.split("|").map((cell) => cell.trim()));
 
-  let html = '<table class="w-full border-collapse border border-gray-300">\n';
+  let html = '<table>\n';
 
   // Header row
   html += "<thead><tr>";
   for (const header of headers) {
-    html += `<th class="border border-gray-300 p-3 bg-gray-100 font-bold">${escapeHTML(header)}</th>`;
+    html += `<th>${escapeHTML(header)}</th>`;
   }
   html += "</tr></thead>\n";
 
@@ -246,7 +246,7 @@ function generateComparisonTable(lines: string[]): string {
   for (const row of rows) {
     html += "<tr>";
     for (const cell of row) {
-      html += `<td class="border border-gray-300 p-3">${escapeHTML(cell)}</td>`;
+      html += `<td>${escapeHTML(cell)}</td>`;
     }
     html += "</tr>";
   }
@@ -288,14 +288,14 @@ function generateFAQSection(lines: string[]): string {
     return "<p>No FAQs provided</p>";
   }
 
-  let html = '<h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>\n';
-  html += '<div class="space-y-4">\n';
+  let html = '<h2>Frequently Asked Questions</h2>\n';
+  html += '<div>\n';
 
   for (const faq of faqs) {
     html += `
-<details class="border border-gray-300 rounded-lg p-4">
-  <summary class="font-bold cursor-pointer">${escapeHTML(faq.question)}</summary>
-  <p class="mt-3 text-gray-700">${escapeHTML(faq.answer)}</p>
+<details>
+  <summary>${escapeHTML(faq.question)}</summary>
+  <p>${escapeHTML(faq.answer)}</p>
 </details>
 `;
   }
@@ -381,20 +381,8 @@ export function generateHTMLDocument(
   <title>${escapeHTML(options.blogTitle || "Blog Post")}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; line-height: 1.6; color: #333; background-color: #fff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; line-height: 1.6; }
     .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-    h1 { font-size: 2.5em; margin-bottom: 20px; }
-    h2 { font-size: 2em; margin-top: 30px; margin-bottom: 15px; }
-    p { margin-bottom: 15px; }
-    ul, ol { margin-left: 20px; margin-bottom: 15px; }
-    li { margin-bottom: 10px; }
-    blockquote { border-left: 4px solid #3b82f6; padding-left: 15px; margin: 20px 0; font-style: italic; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-    th { background-color: #f5f5f5; font-weight: bold; }
-    img { max-width: 100%; height: auto; margin: 20px 0; }
-    details { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px; }
-    summary { cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
