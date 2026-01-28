@@ -320,19 +320,42 @@ export default function BlogGenerator() {
       formData.append("file", file);
       formData.append("keyword", "featured-hero");
 
+      console.log("Uploading featured image:", file.name, file.type, file.size);
+
       const response = await fetch("/api/upload-image", {
         method: "POST",
         body: formData,
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log("Upload response status:", response.status);
+      console.log("Upload response text:", responseText);
 
-      if (!response.ok) {
-        toast.error(`Failed to upload featured image: ${data.error}`);
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        toast.error("Invalid response from server");
         setFeaturedImage(null);
         return;
       }
 
+      if (!response.ok) {
+        const errorMsg = data.error || "Unknown error";
+        console.error("Upload failed:", errorMsg);
+        toast.error(`Failed to upload featured image: ${errorMsg}`);
+        setFeaturedImage(null);
+        return;
+      }
+
+      if (!data.imageUrl) {
+        console.error("No imageUrl in response:", data);
+        toast.error("Image uploaded but URL not returned from server");
+        setFeaturedImage(null);
+        return;
+      }
+
+      console.log("Featured image uploaded successfully. URL:", data.imageUrl);
       setFeaturedImage({ url: data.imageUrl, uploading: false });
       toast.success("Featured image uploaded to Shopify!");
     } catch (error) {
