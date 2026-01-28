@@ -77,7 +77,28 @@ export class ShopifyClient {
     this.validateCredentials();
 
     // Use REST API instead of GraphQL for simpler implementation
-    const restUrl = `${this.baseUrl.replace("/graphql.json", "")}/blogs/${blogId}/articles.json`;
+    const restUrl = `${this.baseUrl}/blogs/${blogId}/articles.json`;
+
+    const articleData: any = {
+      title: article.title,
+      body_html: article.bodyHtml,
+      author: article.author || "Blog Generator",
+      published_at: article.publishedAt || new Date().toISOString(),
+      tags: article.tags?.join(",") || "",
+    };
+
+    // Include featured image if provided
+    // Shopify REST API expects image.src to be a valid, publicly accessible URL
+    if (article.image?.src) {
+      const imageUrl = article.image.src;
+      articleData.image = {
+        src: imageUrl,
+      };
+      if (article.image.alt) {
+        articleData.image.alt = article.image.alt;
+      }
+      console.log(`Publishing article with featured image URL: ${imageUrl}`);
+    }
 
     const response = await fetch(restUrl, {
       method: "POST",
@@ -86,13 +107,7 @@ export class ShopifyClient {
         "X-Shopify-Access-Token": this.accessToken,
       },
       body: JSON.stringify({
-        article: {
-          title: article.title,
-          body_html: article.bodyHtml,
-          author: article.author || "Blog Generator",
-          published_at: article.publishedAt || new Date().toISOString(),
-          tags: article.tags?.join(",") || "",
-        },
+        article: articleData,
       }),
     });
 
