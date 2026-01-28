@@ -91,6 +91,13 @@ export class ShopifyClient {
     // Shopify REST API expects image.src to be a valid, publicly accessible URL
     if (article.image?.src) {
       const imageUrl = article.image.src;
+
+      // Validate URL format
+      if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+        console.error('Invalid featured image URL format:', imageUrl);
+        throw new Error(`Featured image URL must be absolute (http/https): ${imageUrl}`);
+      }
+
       articleData.image = {
         src: imageUrl,
       };
@@ -98,6 +105,8 @@ export class ShopifyClient {
         articleData.image.alt = article.image.alt;
       }
       console.log(`Publishing article with featured image URL: ${imageUrl}`);
+    } else {
+      console.warn('No featured image provided for article');
     }
 
     const response = await fetch(restUrl, {
