@@ -1,6 +1,6 @@
 import type { BlogPost, FAQItem } from "@/types/blog";
 
-export function generateBlogHTML(post: BlogPost): string {
+export function generateBlogHTML(post: BlogPost, featuredImageUrl?: string): string {
   const parts: string[] = [];
 
   // H1 Title
@@ -8,10 +8,10 @@ export function generateBlogHTML(post: BlogPost): string {
   parts.push("");
 
   // Featured Image
-  if (post.featuredImage.file) {
-    const imgSrc = URL.createObjectURL(post.featuredImage.file);
+  if (post.featuredImage.file || featuredImageUrl) {
+    const imgSrc = featuredImageUrl || URL.createObjectURL(post.featuredImage.file!);
     parts.push(
-      `<img src="${imgSrc}" alt="${escapeHtml(post.featuredImage.alt)}" />`
+      `<img src="${imgSrc}" alt="${escapeHtml(post.featuredImage.alt)}" style="width: 100%; height: auto; margin: 1.5rem 0;" />`
     );
     parts.push("");
   }
