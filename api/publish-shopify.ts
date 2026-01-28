@@ -9,7 +9,8 @@ export interface PublishShopifyRequest {
   author?: string;
   tags?: string[];
   publicationDate?: string;
-  imageUrls?: Record<string, string>;
+  imageUrls?: Record<string, string>; // Maps image keyword to Shopify URL
+  featuredImageUrl?: string; // Featured/hero image URL
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
