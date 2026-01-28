@@ -38,6 +38,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Validate featured image URL if provided
+    if (featuredImageUrl) {
+      console.log(`[${new Date().toISOString()}] Received featuredImageUrl: ${featuredImageUrl}`);
+
+      // Check if it's a valid URL format
+      if (!featuredImageUrl.startsWith('http://') && !featuredImageUrl.startsWith('https://')) {
+        console.error(`[${new Date().toISOString()}] Invalid featured image URL format: ${featuredImageUrl}`);
+        return res.status(400).json({
+          error: "Invalid featured image URL",
+          details: "Featured image URL must be a full HTTP/HTTPS URL",
+        });
+      }
+    } else {
+      console.warn(`[${new Date().toISOString()}] No featured image URL provided for publication`);
+    }
+
     // Parse and validate document
     console.log(`[${new Date().toISOString()}] Parsing document...`);
     const parsed = parseDocument(document);
