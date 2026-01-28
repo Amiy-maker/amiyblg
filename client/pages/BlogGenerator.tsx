@@ -93,46 +93,91 @@ export default function BlogGenerator() {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
-    let text = "";
-
     const processNode = (node: Node): string => {
       if (node.nodeType === Node.TEXT_NODE) {
-        return node.textContent || "";
+        const text = node.textContent || "";
+        // Preserve whitespace for list items and other content
+        return text;
       }
 
       if (node.nodeType === Node.ELEMENT_NODE) {
         const element = node as Element;
+        const tagName = element.tagName.toLowerCase();
 
         // Handle links: preserve as [text](url)
-        if (element.tagName.toLowerCase() === "a") {
+        if (tagName === "a") {
           const linkText = Array.from(element.childNodes)
             .map(n => processNode(n))
-            .join("");
+            .join("")
+            .trim();
           const href = element.getAttribute("href") || "";
-          return href ? `[${linkText}](${href})` : linkText;
+          return href && linkText ? `[${linkText}](${href})` : linkText;
         }
 
-        // Handle paragraphs and divs
-        if (["p", "div", "section", "article"].includes(element.tagName.toLowerCase())) {
+        // Handle headings
+        if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(tagName)) {
           const content = Array.from(element.childNodes)
             .map(n => processNode(n))
-            .join("");
-          return content + "\n";
+            .join("")
+            .trim();
+          return content + "\n\n";
         }
 
-        // Handle lists
-        if (element.tagName.toLowerCase() === "ul" || element.tagName.toLowerCase() === "ol") {
+        // Handle paragraphs, divs, and other block elements
+        if (["p", "div", "section", "article", "li"].includes(tagName)) {
+          const content = Array.from(element.childNodes)
+            .map(n => processNode(n))
+            .join("")
+            .trim();
+          return content ? content + "\n" : "";
+        }
+
+        // Handle lists - wrap items with bullets
+        if (tagName === "ul") {
           const items = Array.from(element.querySelectorAll("li"))
-            .map(li => "- " + Array.from(li.childNodes)
-              .map(n => processNode(n))
-              .join("")
-              .trim()
-            )
+            .map(li => {
+              const text = Array.from(li.childNodes)
+                .map(n => processNode(n))
+                .join("")
+                .trim();
+              return text ? "- " + text : "";
+            })
+            .filter(item => item.length > 0)
             .join("\n");
-          return items + "\n";
+          return items ? items + "\n" : "";
         }
 
-        // Handle other elements recursively
+        if (tagName === "ol") {
+          const items = Array.from(element.querySelectorAll("li"))
+            .map((li, idx) => {
+              const text = Array.from(li.childNodes)
+                .map(n => processNode(n))
+                .join("")
+                .trim();
+              return text ? `${idx + 1}. ${text}` : "";
+            })
+            .filter(item => item.length > 0)
+            .join("\n");
+          return items ? items + "\n" : "";
+        }
+
+        // Handle table
+        if (tagName === "table") {
+          const rows = Array.from(element.querySelectorAll("tr"))
+            .map(tr => {
+              const cells = Array.from(tr.querySelectorAll("td, th"))
+                .map(cell => Array.from(cell.childNodes)
+                  .map(n => processNode(n))
+                  .join("")
+                  .trim()
+                );
+              return cells.join(" | ");
+            })
+            .filter(row => row.length > 0);
+          return rows.join("\n") + "\n";
+        }
+
+        // For other elements, process children recursively
         return Array.from(element.childNodes)
           .map(n => processNode(n))
           .join("");
@@ -141,7 +186,7 @@ export default function BlogGenerator() {
       return "";
     };
 
-    text = processNode(doc.body);
+    let text = processNode(doc.body);
 
     // Clean up excessive whitespace
     return text
