@@ -132,7 +132,7 @@ export class ShopifyClient {
     articleId: string,
     article: Partial<ShopifyArticleInput>
   ): Promise<string> {
-    const restUrl = `${this.baseUrl.replace("/graphql.json", "")}/blogs/${blogId}/articles/${articleId}.json`;
+    const restUrl = `${this.baseUrl}/blogs/${blogId}/articles/${articleId}.json`;
 
     const updateData: any = {};
     if (article.title) updateData.title = article.title;
