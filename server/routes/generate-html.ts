@@ -82,7 +82,7 @@ export const handleGenerateHTML: RequestHandler = (req, res) => {
     }
 
     // Check if there are images that need to be uploaded
-    if (parsed.images.length > 0 && !options.imageUrls) {
+    if (parsed.images.length > 0 && (!options.imageUrls || Object.keys(options.imageUrls).length === 0)) {
       return res.status(202).json({
         success: false,
         requiresImageUpload: true,
@@ -92,6 +92,15 @@ export const handleGenerateHTML: RequestHandler = (req, res) => {
         })),
         message: "Document contains images. Please upload images to Shopify first.",
       });
+    }
+
+    // Log which images are missing (not in imageUrls)
+    if (parsed.images.length > 0 && options.imageUrls) {
+      const providedKeywords = Object.keys(options.imageUrls);
+      const missingImages = parsed.images.filter(img => !providedKeywords.includes(img.keyword));
+      if (missingImages.length > 0) {
+        console.warn("Some images are missing from imageUrls:", missingImages.map(img => img.keyword));
+      }
     }
 
     // Generate HTML
