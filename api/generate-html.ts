@@ -97,7 +97,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Check if there are images that need to be uploaded
-    if (parsed.images.length > 0 && !options.imageUrls) {
+    if (parsed.images.length > 0 && (!options.imageUrls || Object.keys(options.imageUrls).length === 0)) {
       console.log(`[${new Date().toISOString()}] Document requires image upload. Found ${parsed.images.length} images`);
       return res.status(202).json({
         success: false,
@@ -108,6 +108,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })),
         message: "Document contains images. Please upload images to Shopify first.",
       });
+    }
+
+    // Log which images are missing (not in imageUrls)
+    if (parsed.images.length > 0 && options.imageUrls) {
+      const providedKeywords = Object.keys(options.imageUrls);
+      const missingImages = parsed.images.filter(img => !providedKeywords.includes(img.keyword));
+      if (missingImages.length > 0) {
+        console.warn(`[${new Date().toISOString()}] Some images are missing from imageUrls:`, missingImages.map(img => img.keyword));
+      }
     }
 
     // Generate HTML
