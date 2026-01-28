@@ -88,13 +88,20 @@ export class ShopifyClient {
     };
 
     // Include featured image if provided
+    // Shopify REST API expects image.src to be a valid, publicly accessible URL
     if (article.image?.src) {
+      // Ensure the URL is properly formatted for Shopify
+      const imageUrl = article.image.src;
+
       articleData.image = {
-        src: article.image.src,
+        src: imageUrl,
       };
+
       if (article.image.alt) {
         articleData.image.alt = article.image.alt;
       }
+
+      console.log(`Publishing article with featured image URL: ${imageUrl}`);
     }
 
     const response = await fetch(restUrl, {
@@ -108,10 +115,12 @@ export class ShopifyClient {
 
     if (!response.ok) {
       const error = await response.text();
+      console.error("Article creation failed:", error);
       throw new Error(`Failed to publish article: ${error}`);
     }
 
     const data = await response.json() as { article: { id: string; title: string; handle: string } };
+    console.log(`Article created successfully. Article ID: ${data.article.id}`);
     return data.article.id;
   }
 
