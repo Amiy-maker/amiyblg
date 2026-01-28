@@ -326,8 +326,8 @@ export class ShopifyClient {
         const fileId = createdFile.id;
         console.log("File uploaded but not yet processed, polling for image URL. File ID:", fileId);
 
-        for (let i = 0; i < 10; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+        for (let i = 0; i < 30; i++) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
 
           const pollQuery = `
             query getFile($id: ID!) {
@@ -375,9 +375,12 @@ export class ShopifyClient {
       }
 
       if (!imageUrl) {
-        // Fallback to resourceUrl if processing is delayed, but warn about it
-        console.warn("Image URL not obtained from preview, using resourceUrl as fallback:", resourceUrl);
-        imageUrl = resourceUrl;
+        // If we still don't have a URL after polling, throw an error
+        // The staging resourceUrl won't be accessible to Shopify when rendering the article
+        throw new Error(
+          "Image processing timeout: Shopify took too long to process the image. " +
+          "Please try uploading again. If the problem persists, check that your image file is valid."
+        );
       }
 
       console.log("Successfully uploaded image. Final URL:", imageUrl);
