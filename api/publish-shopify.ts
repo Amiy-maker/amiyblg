@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { document, title, author, tags, publicationDate, imageUrls } = req.body as PublishShopifyRequest;
+    const { document, title, author, tags, publicationDate, imageUrls, featuredImageUrl } = req.body as PublishShopifyRequest;
 
     console.log(`[${new Date().toISOString()}] Publishing article: "${title}"`);
     console.log(`[${new Date().toISOString()}] Document length: ${document?.length || 0}, Author: ${author || 'N/A'}`);
