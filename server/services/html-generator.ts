@@ -126,7 +126,7 @@ function generateSectionHTML(
       return generateFAQSection(lines);
 
     case "section12":
-      return `<p>${textWithLinksToHTML(rawContent)}</p>`;
+      return `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 25px; color: #3a3a3a;">${textWithLinksToHTML(rawContent)}</p>`;
 
     default:
       console.warn(`Unknown section ID: ${id}. Valid sections are section1-section12.`);
