@@ -511,8 +511,20 @@ export default function BlogGenerator() {
       return;
     }
 
+    // Check featured image status
+    if (!featuredImage?.url) {
+      const confirmPublish = window.confirm(
+        "No featured image has been uploaded. Do you want to publish without a featured image?"
+      );
+      if (!confirmPublish) {
+        return;
+      }
+    }
+
     setIsPublishing(true);
     try {
+      console.log("Publishing article with featured image URL:", featuredImage?.url);
+
       const response = await fetch("/api/publish-shopify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -541,8 +553,22 @@ export default function BlogGenerator() {
       }
 
       if (!response.ok) {
-        toast.error(data.error || "Failed to publish to Shopify");
+        const errorMessage = data.error || "Failed to publish to Shopify";
+        const suggestion = data.suggestion ? ` ${data.suggestion}` : "";
+        console.error("Publish error response:", data);
+
+        // Special handling for featured image errors
+        if (data.error?.includes("featured image") || data.error?.includes("image")) {
+          toast.error(`Featured Image Error: ${errorMessage}${suggestion}`);
+        } else {
+          toast.error(errorMessage);
+        }
         return;
+      }
+
+      // Verify featured image was included
+      if (featuredImage?.url && !data.featuredImageIncluded) {
+        console.warn("Featured image URL was provided but may not have been included in the published article");
       }
 
       toast.success("Published to Shopify successfully!");
@@ -554,8 +580,8 @@ export default function BlogGenerator() {
         publicationDate: new Date().toISOString().split("T")[0],
       });
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("Failed to publish to Shopify");
+      console.error("Error publishing:", error);
+      toast.error(`Error: ${error instanceof Error ? error.message : "Failed to publish to Shopify"}`);
     } finally {
       setIsPublishing(false);
     }
