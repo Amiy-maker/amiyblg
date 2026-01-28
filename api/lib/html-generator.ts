@@ -51,9 +51,9 @@ export function generateHTML(
   // Add featured image if provided
   if (includeImages && featuredImageUrl) {
     console.log("Adding featured image to HTML:", featuredImageUrl);
-    // Use inline styles instead of classes because some platforms strip <style> tags
-    // This ensures the featured image styling persists when used with Shopify
-    const featuredImageHtml = `<img src="${featuredImageUrl}" alt="Featured" style="width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; margin: 0 0 40px 0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); display: block;" />`;
+    // Use inline styles for maximum Shopify compatibility
+    // Featured image is styled with consistent aspect ratio and shadow
+    const featuredImageHtml = `<img src="${featuredImageUrl}" alt="Featured image" style="width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; margin: 0 0 40px 0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); display: block;" />`;
     sections.push(featuredImageHtml);
   } else {
     console.log("Featured image not included. includeImages:", includeImages, "featuredImageUrl:", featuredImageUrl);
@@ -152,10 +152,16 @@ function generateHero(
     const image = section.images[0];
     console.log(`Looking for image keyword: "${image.keyword}"`);
     console.log(`Available imageUrls keys: ${Object.keys(imageUrls).join(", ")}`);
-    const imageUrl = imageUrls[image.keyword] || "/placeholder-featured.jpg";
-    console.log(`Resolved image URL: ${imageUrl}`);
-    const imgTag = `<img src="${imageUrl}" alt="${image.keyword}" />`;
-    return `${h1}\n${imgTag}`;
+    const imageUrl = imageUrls[image.keyword];
+
+    // Only include image if URL is available (don't use placeholders)
+    if (imageUrl) {
+      console.log(`Resolved image URL: ${imageUrl}`);
+      const imgTag = `<img src="${imageUrl}" alt="${image.keyword}" style="width: 100%; height: auto; margin: 25px auto 30px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" />`;
+      return `${h1}\n${imgTag}`;
+    } else {
+      console.log(`Image URL not available for keyword: ${image.keyword}`);
+    }
   }
 
   return h1;
@@ -220,9 +226,15 @@ function generateSectionBody(
       if (includeImages && idx % 2 === 1 && imageIndex < sectionImages.length) {
         const image = sectionImages[imageIndex];
         console.log(`Looking for image keyword: "${image.keyword}" in section`);
-        const imageUrl = imageUrls[image.keyword] || "/placeholder-section.jpg";
-        console.log(`Resolved image URL for section: ${imageUrl}`);
-        result += `\n<img src="${imageUrl}" alt="${image.keyword}" />`;
+        const imageUrl = imageUrls[image.keyword];
+
+        // Only include image if URL is available (don't use placeholders)
+        if (imageUrl) {
+          console.log(`Resolved image URL for section: ${imageUrl}`);
+          result += `\n<img src="${imageUrl}" alt="${image.keyword}" style="width: 100%; height: auto; margin: 30px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" />`;
+        } else {
+          console.log(`Image URL not available for keyword: ${image.keyword}`);
+        }
         imageIndex++;
       }
 
@@ -375,6 +387,22 @@ function escapeHTML(text: string): string {
   };
 
   return text.replace(/[&<>"']/g, (char) => map[char]);
+}
+
+/**
+ * Generate HTML with inline styles (for Shopify/external publishing)
+ * Wraps content in a div with core styles for Shopify compatibility
+ */
+export function generateStyledHTML(
+  parsed: ParsedDocument,
+  options: HTMLGeneratorOptions = {}
+): string {
+  const content = generateHTML(parsed, options);
+
+  // Shopify and other platforms strip <style> tags for security
+  // All styling uses inline styles on individual elements
+  // Wrapper div includes core typography and layout styles
+  return `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; line-height: 1.7; color: #2c3e50; max-width: 720px; margin: 0 auto; padding: 20px 0;">\n${content}\n</div>`;
 }
 
 /**

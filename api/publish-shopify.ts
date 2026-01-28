@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { parseDocument } from './lib/document-parser.js';
-import { generateHTML } from './lib/html-generator.js';
+import { generateStyledHTML } from './lib/html-generator.js';
 import { getShopifyClient } from './lib/shopify-client.js';
 
 export interface PublishShopifyRequest {
@@ -38,6 +38,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Validate featured image URL if provided
+    if (featuredImageUrl) {
+      console.log(`[${new Date().toISOString()}] Received featuredImageUrl: ${featuredImageUrl}`);
+
+      // Check if it's a valid URL format
+      if (!featuredImageUrl.startsWith('http://') && !featuredImageUrl.startsWith('https://')) {
+        console.error(`[${new Date().toISOString()}] Invalid featured image URL format: ${featuredImageUrl}`);
+        return res.status(400).json({
+          error: "Invalid featured image URL",
+          details: "Featured image URL must be a full HTTP/HTTPS URL",
+        });
+      }
+    } else {
+      console.warn(`[${new Date().toISOString()}] No featured image URL provided for publication`);
+    }
+
     // Parse and validate document
     console.log(`[${new Date().toISOString()}] Parsing document...`);
     const parsed = parseDocument(document);
@@ -69,7 +85,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Important: DO NOT include featured image in body HTML - it will be set as the article image field
     // This ensures the featured image appears in Shopify's "Image" field, not in the content
     console.log(`[${new Date().toISOString()}] Generating HTML for article...`);
-    const bodyHtml = generateHTML(parsed, {
+    const bodyHtml = generateStyledHTML(parsed, {
       includeSchema: true,
       includeImages: true,
       blogTitle: title,
@@ -79,7 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       featuredImageUrl: undefined,
     });
     console.log(`[${new Date().toISOString()}] HTML generated. Size: ${bodyHtml.length} characters`);
-    console.log("Publishing with featured image URL:", featuredImageUrl);
+    console.log(`[${new Date().toISOString()}] Publishing with featured image URL:`, featuredImageUrl);
 
     // Publish to Shopify
     console.log(`[${new Date().toISOString()}] Connecting to Shopify...`);
@@ -102,6 +118,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Publish article with featured image as the article image field (not in body HTML)
     console.log(`[${new Date().toISOString()}] Publishing article to Shopify...`);
+    console.log(`[${new Date().toISOString()}] Featured image URL for publication: ${featuredImageUrl ? 'present' : 'missing'}`);
+
     const articleId = await shopifyClient.publishArticle(blogId, {
       title,
       bodyHtml,
@@ -117,12 +135,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       message: "Article published to Shopify successfully",
       articleId,
       metadata: parsed.metadata,
+      featuredImageIncluded: !!featuredImageUrl,
     });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Error publishing to Shopify:`, error);
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isFeaturedImageError = errorMessage.includes('image') || errorMessage.includes('Image');
+
+    if (isFeaturedImageError) {
+      console.error(`[${new Date().toISOString()}] Featured image error detected:`, errorMessage);
+      return res.status(400).json({
+        error: "Failed to set featured image on article",
+        details: errorMessage,
+        suggestion: "Ensure the featured image URL is valid and publicly accessible",
+      });
+    }
+
     return res.status(500).json({
       error: "Failed to publish to Shopify",
-      details: error instanceof Error ? error.message : String(error),
+      details: errorMessage,
     });
   }
 }
