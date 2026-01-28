@@ -169,7 +169,7 @@ function generateList(
 ): string {
   const tag = listType === "ul" ? "ul" : "ol";
   const listStyle = listType === "ul" ? "margin: 15px 0 15px 35px; line-height: 1.9;" : "margin: 15px 0 15px 35px; line-height: 1.9;";
-  const items = lines.map((line) => `<li style="margin-bottom: 15px; font-size: 1.05em; color: #3a3a3a;">${textWithLinksToHTML(line)}</li>`).join("\n");
+  const items = lines.map((line) => `<li style="margin-bottom: 10px; font-size: 1.05em; color: #3a3a3a;">${textWithLinksToHTML(line)}</li>`).join("\n");
 
   let html = `<${tag} style="${listStyle}">\n${items}\n</${tag}>`;
 
