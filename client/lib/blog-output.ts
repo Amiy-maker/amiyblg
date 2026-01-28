@@ -215,7 +215,7 @@ export function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
-export function generateMetaData(post: BlogPost): {
+export function generateMetaData(post: BlogPost, featuredImageUrl?: string): {
   title: string;
   description: string;
   keywords: string;
@@ -226,9 +226,9 @@ export function generateMetaData(post: BlogPost): {
     post.metaDescription ||
     post.introduction.substring(0, 150).replace(/<[^>]*>/g, "");
   const keywords = [post.primaryKeyword, ...post.secondaryKeywords].join(", ");
-  const ogImage = post.featuredImage.file
+  const ogImage = featuredImageUrl || (post.featuredImage.file
     ? URL.createObjectURL(post.featuredImage.file)
-    : "";
+    : "");
 
   return {
     title,
