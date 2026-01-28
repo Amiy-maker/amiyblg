@@ -9,7 +9,8 @@ export interface PublishShopifyRequest {
   author?: string;
   tags?: string[];
   publicationDate?: string;
-  imageUrls?: Record<string, string>;
+  imageUrls?: Record<string, string>; // Maps image keyword to Shopify URL
+  featuredImageUrl?: string; // Featured/hero image URL
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -25,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { document, title, author, tags, publicationDate, imageUrls } = req.body as PublishShopifyRequest;
+    const { document, title, author, tags, publicationDate, imageUrls, featuredImageUrl } = req.body as PublishShopifyRequest;
 
     console.log(`[${new Date().toISOString()}] Publishing article: "${title}"`);
     console.log(`[${new Date().toISOString()}] Document length: ${document?.length || 0}, Author: ${author || 'N/A'}`);
@@ -65,6 +66,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Generate HTML
+    // Important: DO NOT include featured image in body HTML - it will be set as the article image field
+    // This ensures the featured image appears in Shopify's "Image" field, not in the content
     console.log(`[${new Date().toISOString()}] Generating HTML for article...`);
     const bodyHtml = generateHTML(parsed, {
       includeSchema: true,
@@ -72,8 +75,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       blogTitle: title,
       authorName: author,
       imageUrls: imageUrls || {},
+      // CRITICAL: Don't pass featuredImageUrl here - we set it separately as article.image
+      featuredImageUrl: undefined,
     });
     console.log(`[${new Date().toISOString()}] HTML generated. Size: ${bodyHtml.length} characters`);
+    console.log("Publishing with featured image URL:", featuredImageUrl);
 
     // Publish to Shopify
     console.log(`[${new Date().toISOString()}] Connecting to Shopify...`);
@@ -94,7 +100,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const blogId = await shopifyClient.getBlogId();
     console.log(`[${new Date().toISOString()}] Blog ID: ${blogId}`);
 
-    // Publish article
+    // Publish article with featured image as the article image field (not in body HTML)
     console.log(`[${new Date().toISOString()}] Publishing article to Shopify...`);
     const articleId = await shopifyClient.publishArticle(blogId, {
       title,
@@ -102,6 +108,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       author: author || "Blog Generator",
       publishedAt: publicationDate || new Date().toISOString(),
       tags: tags || [],
+      image: featuredImageUrl ? { src: featuredImageUrl } : undefined,
     });
     console.log(`[${new Date().toISOString()}] Article published successfully. Article ID: ${articleId}`);
 
