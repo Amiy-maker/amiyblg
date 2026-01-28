@@ -77,7 +77,7 @@ export class ShopifyClient {
     this.validateCredentials();
 
     // Use REST API instead of GraphQL for simpler implementation
-    const restUrl = `${this.baseUrl.replace("/graphql.json", "")}/blogs/${blogId}/articles.json`;
+    const restUrl = `${this.baseUrl}/blogs/${blogId}/articles.json`;
 
     const articleData: any = {
       title: article.title,
@@ -132,7 +132,7 @@ export class ShopifyClient {
     articleId: string,
     article: Partial<ShopifyArticleInput>
   ): Promise<string> {
-    const restUrl = `${this.baseUrl.replace("/graphql.json", "")}/blogs/${blogId}/articles/${articleId}.json`;
+    const restUrl = `${this.baseUrl}/blogs/${blogId}/articles/${articleId}.json`;
 
     const updateData: any = {};
     if (article.title) updateData.title = article.title;
@@ -170,7 +170,7 @@ export class ShopifyClient {
     }
 
     // Fetch blog ID from Shopify if not in env
-    const restUrl = `${this.baseUrl.replace("/graphql.json", "")}/blogs.json`;
+    const restUrl = `${this.baseUrl}/blogs.json`;
 
     const response = await fetch(restUrl, {
       headers: {
@@ -419,7 +419,7 @@ export class ShopifyClient {
     try {
       this.validateCredentials();
 
-      const restUrl = `${this.baseUrl.replace("/graphql.json", "")}/shop.json`;
+      const restUrl = `${this.baseUrl}/shop.json`;
 
       const response = await fetch(restUrl, {
         headers: {
