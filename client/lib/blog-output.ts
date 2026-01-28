@@ -49,10 +49,10 @@ export function generateBlogHTML(post: BlogPost, featuredImageUrl?: string): str
       );
     });
     parts.push("</ul>");
-    if (post.sections.benefits.image.file) {
-      const imgSrc = URL.createObjectURL(post.sections.benefits.image.file);
+    if (post.sections.benefits.image.file || post.sections.benefits.image.url) {
+      const imgSrc = post.sections.benefits.image.url || URL.createObjectURL(post.sections.benefits.image.file!);
       parts.push(
-        `<img src="${imgSrc}" alt="${escapeHtml(post.sections.benefits.image.alt)}" />`
+        `<img src="${imgSrc}" alt="${escapeHtml(post.sections.benefits.image.alt)}" style="width: 100%; height: auto; margin: 1.5rem 0; border-radius: 8px;" />`
       );
     }
     parts.push("");
