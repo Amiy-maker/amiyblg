@@ -212,7 +212,7 @@ function generateSectionBody(
       // Rest of content
       const bodyText = lines.join("\n").trim();
       if (bodyText) {
-        result += `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 25px; color: #3a3a3a;">${textWithLinksToHTML(bodyText)}</p>`;
+        result += `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 15px; margin-top: 0; color: #3a3a3a;">${textWithLinksToHTML(bodyText)}</p>`;
       }
 
       // Add image if enabled and available
@@ -221,7 +221,7 @@ function generateSectionBody(
         console.log(`Looking for image keyword: "${image.keyword}" in section`);
         const imageUrl = imageUrls[image.keyword] || "/placeholder-section.jpg";
         console.log(`Resolved image URL for section: ${imageUrl}`);
-        result += `\n<img src="${imageUrl}" alt="${image.keyword}" style="max-width: 100%; height: auto; display: block; margin: 40px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" />`;
+        result += `\n<img src="${imageUrl}" alt="${image.keyword}" style="max-width: 100%; height: auto; display: block; margin: 25px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" />`;
         imageIndex++;
       }
 
@@ -237,14 +237,14 @@ function generateSectionBody(
  */
 function generateComparisonTable(lines: string[]): string {
   if (lines.length < 2) {
-    return "<p style=\"font-size: 1.05em; line-height: 1.8; margin-bottom: 25px; color: #3a3a3a;\">No comparison data provided</p>";
+    return "<p style=\"font-size: 1.05em; line-height: 1.8; margin-bottom: 15px; margin-top: 0; color: #3a3a3a;\">No comparison data provided</p>";
   }
 
   // Assume first line is headers, rest are data
   const headers = lines[0].split("|").map((h) => h.trim());
   const rows = lines.slice(1).map((line) => line.split("|").map((cell) => cell.trim()));
 
-  let html = '<table style="width: 100%; border-collapse: collapse; margin: 40px 0; font-size: 1em; background-color: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border-radius: 6px; overflow: hidden;">\n';
+  let html = '<table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 1em; background-color: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border-radius: 6px; overflow: hidden;">\n';
 
   // Header row
   html += '<thead style="background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);"><tr>';
