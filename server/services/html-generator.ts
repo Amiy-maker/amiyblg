@@ -168,13 +168,13 @@ function generateList(
   title?: string
 ): string {
   const tag = listType === "ul" ? "ul" : "ol";
-  const listStyle = listType === "ul" ? "margin: 30px 0 30px 35px; line-height: 1.9;" : "margin: 30px 0 30px 35px; line-height: 1.9;";
+  const listStyle = listType === "ul" ? "margin: 15px 0 15px 35px; line-height: 1.9;" : "margin: 15px 0 15px 35px; line-height: 1.9;";
   const items = lines.map((line) => `<li style="margin-bottom: 15px; font-size: 1.05em; color: #3a3a3a;">${textWithLinksToHTML(line)}</li>`).join("\n");
 
   let html = `<${tag} style="${listStyle}">\n${items}\n</${tag}>`;
 
   if (title) {
-    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 50px; margin-bottom: 25px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
+    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
   }
 
   return html;
@@ -205,7 +205,7 @@ function generateSectionBody(
         lines[0].length < 60 &&
         (lines[0].endsWith(":") || lines[0] === lines[0].toUpperCase())
       ) {
-        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 50px; margin-bottom: 25px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
+        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
         lines.shift();
       }
 
