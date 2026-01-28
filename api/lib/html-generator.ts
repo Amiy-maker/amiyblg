@@ -390,6 +390,22 @@ function escapeHTML(text: string): string {
 }
 
 /**
+ * Generate HTML with inline styles (for Shopify/external publishing)
+ * Wraps content in a div with core styles for Shopify compatibility
+ */
+export function generateStyledHTML(
+  parsed: ParsedDocument,
+  options: HTMLGeneratorOptions = {}
+): string {
+  const content = generateHTML(parsed, options);
+
+  // Shopify and other platforms strip <style> tags for security
+  // All styling uses inline styles on individual elements
+  // Wrapper div includes core typography and layout styles
+  return `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; line-height: 1.7; color: #2c3e50; max-width: 720px; margin: 0 auto; padding: 20px 0;">\n${content}\n</div>`;
+}
+
+/**
  * Generate complete standalone HTML document
  */
 export function generateHTMLDocument(
