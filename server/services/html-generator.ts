@@ -205,14 +205,14 @@ function generateSectionBody(
         lines[0].length < 60 &&
         (lines[0].endsWith(":") || lines[0] === lines[0].toUpperCase())
       ) {
-        result += `<h2>${textWithLinksToHTML(lines[0])}</h2>\n`;
+        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 50px; margin-bottom: 25px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
         lines.shift();
       }
 
       // Rest of content
       const bodyText = lines.join("\n").trim();
       if (bodyText) {
-        result += `<p>${textWithLinksToHTML(bodyText)}</p>`;
+        result += `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 25px; color: #3a3a3a;">${textWithLinksToHTML(bodyText)}</p>`;
       }
 
       // Add image if enabled and available
@@ -221,7 +221,7 @@ function generateSectionBody(
         console.log(`Looking for image keyword: "${image.keyword}" in section`);
         const imageUrl = imageUrls[image.keyword] || "/placeholder-section.jpg";
         console.log(`Resolved image URL for section: ${imageUrl}`);
-        result += `\n<img src="${imageUrl}" alt="${image.keyword}" />`;
+        result += `\n<img src="${imageUrl}" alt="${image.keyword}" style="max-width: 100%; height: auto; display: block; margin: 40px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" />`;
         imageIndex++;
       }
 
