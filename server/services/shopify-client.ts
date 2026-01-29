@@ -448,24 +448,44 @@ export class ShopifyClient {
 
     const restUrl = `${this.baseUrl}/products.json?limit=${limit}&fields=id,title,handle,image`;
 
-    const response = await fetch(restUrl, {
-      headers: {
-        "X-Shopify-Access-Token": this.accessToken,
-      },
-    });
+    try {
+      const response = await fetch(restUrl, {
+        headers: {
+          "X-Shopify-Access-Token": this.accessToken,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch products from Shopify");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Shopify API error (${response.status}):`, errorText);
+        throw new Error(`Failed to fetch products from Shopify: ${response.status} ${response.statusText}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        const errorText = await response.text();
+        console.error("Invalid content type. Expected JSON but got:", contentType);
+        console.error("Response body:", errorText);
+        throw new Error(`Invalid response format from Shopify. Expected JSON but got ${contentType}`);
+      }
+
+      const data = await response.json() as { products: Array<{ id: string; title: string; handle: string; image?: { src: string } }> };
+
+      if (!data.products) {
+        console.warn("No products found in Shopify response");
+        return [];
+      }
+
+      return data.products.map((product) => ({
+        id: product.id,
+        title: product.title,
+        handle: product.handle,
+        image: product.image?.src,
+      }));
+    } catch (error) {
+      console.error("Error in getProducts:", error);
+      throw error;
     }
-
-    const data = await response.json() as { products: Array<{ id: string; title: string; handle: string; image?: { src: string } }> };
-
-    return data.products.map((product) => ({
-      id: product.id,
-      title: product.title,
-      handle: product.handle,
-      image: product.image?.src,
-    }));
   }
 
   /**
