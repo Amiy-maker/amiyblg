@@ -51,6 +51,7 @@ export function createServer() {
   app.post("/api/generate-html", handleGenerateHTML);
   app.post("/api/publish-shopify", handlePublishShopify);
   app.get("/api/products", handleGetProducts);
+  app.get("/api/validate-shopify", handleValidateShopify);
 
   // Image upload route
   app.post("/api/upload-image", upload.single("file"), handleUploadImage);
