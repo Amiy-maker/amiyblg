@@ -521,6 +521,45 @@ export class ShopifyClient {
   }
 
   /**
+   * Update a metafield on an article
+   */
+  async updateArticleMetafield(
+    blogId: string,
+    articleId: string,
+    namespace: string,
+    key: string,
+    value: string,
+    type: string = "string"
+  ): Promise<void> {
+    this.validateCredentials();
+
+    const restUrl = `${this.baseUrl}/blogs/${blogId}/articles/${articleId}/metafields.json`;
+
+    const metafieldData = {
+      metafield: {
+        namespace,
+        key,
+        value,
+        type,
+      },
+    };
+
+    const response = await fetch(restUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": this.accessToken,
+      },
+      body: JSON.stringify(metafieldData),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to update article metafield: ${error}`);
+    }
+  }
+
+  /**
    * Validate Shopify connection
    */
   async validateConnection(): Promise<boolean> {
