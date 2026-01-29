@@ -853,7 +853,8 @@ export default function BlogGenerator() {
                     ref={textareaRef}
                     value={documentContent}
                     onChange={(e) => setDocumentContent(e.target.value)}
-                    placeholder="Write your blog content here. Use {section1}, {section2}, etc. to mark sections."
+                    onPaste={handlePaste}
+                    placeholder="Write your blog content here. Use {section1}, {section2}, etc. to mark sections. You can also paste content from Word or other sources."
                     className="w-full h-[600px] p-4 font-mono text-sm border-0 focus:ring-0 resize-none"
                   />
                 </CardContent>
