@@ -34,10 +34,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { document, title, author, tags, publicationDate, imageUrls, featuredImageUrl } = req.body as PublishShopifyRequest;
+    const { document, title, author, tags, publicationDate, imageUrls, featuredImageUrl, relatedProducts } = req.body as PublishShopifyRequest;
 
     console.log(`[${new Date().toISOString()}] Publishing article: "${title}"`);
     console.log(`[${new Date().toISOString()}] Document length: ${document?.length || 0}, Author: ${author || 'N/A'}`);
+    console.log(`[${new Date().toISOString()}] Related products: ${relatedProducts?.length || 0}`);
 
     if (!document || !title) {
       console.error('Missing required fields: document or title');
