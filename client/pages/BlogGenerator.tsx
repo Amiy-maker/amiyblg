@@ -70,6 +70,20 @@ export default function BlogGenerator() {
   const showDiagnostics = async () => {
     try {
       const response = await fetch("/api/diagnose-shopify");
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server returned error:", response.status, errorText);
+
+        try {
+          const errorData = JSON.parse(errorText);
+          const details = errorData.details || errorData.error || "Unknown error";
+          throw new Error(`Server error (${response.status}): ${details}`);
+        } catch {
+          throw new Error(`Server error (${response.status}): ${errorText || "No response"}`);
+        }
+      }
+
       const data = await response.json();
 
       // Open diagnostic info in a new window or show in a modal
@@ -105,8 +119,9 @@ Timestamp: ${data.timestamp}
 
       toast.success("Diagnostic report downloaded. Check your downloads folder.");
     } catch (error) {
-      console.error("Error fetching diagnostics:", error);
-      toast.error("Failed to get diagnostic information");
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("Error fetching diagnostics:", message);
+      toast.error(message || "Failed to get diagnostic information");
     }
   };
 
