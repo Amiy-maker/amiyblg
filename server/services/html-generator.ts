@@ -146,7 +146,7 @@ function generateHero(
   section: ParsedSection,
   imageUrls: Record<string, string>
 ): string {
-  const h1 = `<h1 style="font-size: 2.5em; font-weight: 700; margin-bottom: 20px; margin-top: 0; line-height: 1.2; color: #1a1a1a; letter-spacing: -0.5px;">${textWithLinksToHTML(content)}</h1>`;
+  const h1 = `<h1 style="font-size: 2.5em; font-weight: 700; margin-bottom: 20px; margin-top: 0; line-height: 1.2; color: #4d4f2f; letter-spacing: -0.5px;">${textWithLinksToHTML(content)}</h1>`;
 
   if (includeImages && rule.image?.position === "after" && section.images && section.images.length > 0) {
     const image = section.images[0];
@@ -182,7 +182,7 @@ function generateList(
   let html = `<${tag} style="${listStyle}">\n${items}\n</${tag}>`;
 
   if (title) {
-    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
+    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
   }
 
   return html;
@@ -213,7 +213,7 @@ function generateSectionBody(
         lines[0].length < 60 &&
         (lines[0].endsWith(":") || lines[0] === lines[0].toUpperCase())
       ) {
-        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
+        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
         lines.shift();
       }
 
@@ -263,7 +263,7 @@ function generateComparisonTable(lines: string[]): string {
   // Header row
   html += '<thead style="background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);"><tr>';
   for (const header of headers) {
-    html += `<th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #1a1a1a; border-bottom: 2px solid #d0d0d0; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;">${textWithLinksToHTML(header)}</th>`;
+    html += `<th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #4d4f2f; border-bottom: 2px solid #d0d0d0; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;">${textWithLinksToHTML(header)}</th>`;
   }
   html += "</tr></thead>\n";
 
