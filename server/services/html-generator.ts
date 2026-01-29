@@ -623,10 +623,10 @@ function getBlogStyles(): string {
     }
 
     .blog-content th {
-      padding: 18px;
+      padding: 15px 18px;
       text-align: left;
       font-weight: 600;
-      color: #1a1a1a;
+      color: #424423;
       border-bottom: 2px solid #d0d0d0;
       font-size: 0.95em;
       text-transform: uppercase;
@@ -634,7 +634,7 @@ function getBlogStyles(): string {
     }
 
     .blog-content td {
-      padding: 16px 18px;
+      padding: 15px 18px;
       border-bottom: 1px solid #e8e8e8;
       color: #3a3a3a;
     }
@@ -649,13 +649,14 @@ function getBlogStyles(): string {
 
     /* Details/Accordion */
     .blog-content details {
-      margin: 25px 0;
-      padding: 20px;
-      border: 1px solid #e0e0e0;
+      margin: 18px 0;
+      padding: 0;
+      border: 1px solid #d0d0d0;
       border-radius: 6px;
-      background-color: #fafafa;
+      background-color: transparent;
       cursor: pointer;
       transition: all 0.3s ease;
+      overflow: hidden;
     }
 
     .blog-content details:hover {
@@ -669,19 +670,25 @@ function getBlogStyles(): string {
 
     .blog-content summary {
       font-weight: 600;
-      font-size: 1.1em;
-      color: #1a1a1a;
+      font-size: 1.05em;
+      color: #424423;
       cursor: pointer;
       outline: none;
       user-select: none;
-      padding: 5px 0;
+      padding: 20px 22px;
+      background-color: #f9f9f9;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.2s ease;
     }
 
-    .blog-content details p {
-      margin-top: 18px;
-      margin-bottom: 0;
-      font-size: 1em;
+    .blog-content details > div {
+      padding: 20px 22px;
+      border-top: 1px solid #e0e0e0;
+      background-color: #ffffff;
       color: #3a3a3a;
+      font-size: 1em;
+      line-height: 1.8;
     }
 
     /* Schema markup */
