@@ -43,6 +43,14 @@ export class ShopifyClient {
         "Shopify credentials not configured. Please set SHOPIFY_SHOP and SHOPIFY_ADMIN_ACCESS_TOKEN environment variables."
       );
     }
+
+    // Validate shop name format
+    if (!this.shopName.includes('.')) {
+      throw new Error(
+        `Invalid SHOPIFY_SHOP format: "${this.shopName}". ` +
+        `Please ensure SHOPIFY_SHOP is in the format "myshop.myshopify.com"`
+      );
+    }
   }
 
   /**
@@ -479,8 +487,8 @@ export class ShopifyClient {
               console.log("Attempting to parse response as JSON despite content-type mismatch...");
               data = JSON.parse(errorText);
               console.log("✓ Successfully parsed as JSON");
-            } catch {
-              throw new Error(`Invalid response format from Shopify. Expected JSON but got ${contentType}. Body: ${errorText.substring(0, 200)}`);
+            } catch (jsonError) {
+              throw new Error(`Shopify returned invalid response format. Expected JSON but got ${contentType || 'unknown'}. Response: ${errorText.substring(0, 200)}`);
             }
           } else {
             data = await response.json();
@@ -491,7 +499,7 @@ export class ShopifyClient {
         }
 
         if (!data.products || !Array.isArray(data.products)) {
-          console.warn("No products array in Shopify response");
+          console.warn("No products array in Shopify response. Data:", JSON.stringify(data).substring(0, 200));
           return [];
         }
 
@@ -518,6 +526,68 @@ export class ShopifyClient {
       console.error("Error in getProducts:", errorMsg);
       throw error;
     }
+  }
+
+  /**
+   * Update article metafield
+   */
+  async updateArticleMetafield(
+    blogId: string,
+    articleId: string,
+    namespace: string,
+    key: string,
+    value: string,
+    valueType: "string" | "json" = "json"
+  ): Promise<boolean> {
+    this.validateCredentials();
+
+    const graphqlQuery = `
+      mutation updateMetafield($input: MetafieldsSetInput!) {
+        metafieldsSet(input: $input) {
+          metafields {
+            id
+            namespace
+            key
+            value
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const articleGid = `gid://shopify/Article/${articleId.split('/').pop()}`;
+
+    const variables = {
+      input: {
+        ownerId: articleGid,
+        metafields: [
+          {
+            namespace,
+            key,
+            value,
+            type: valueType,
+          },
+        ],
+      },
+    };
+
+    const response = await this.graphql(graphqlQuery, variables);
+
+    if (response.errors) {
+      console.error("Update metafield error:", response.errors);
+      throw new Error(`Failed to update metafield: ${response.errors.map((e: any) => e.message).join('; ')}`);
+    }
+
+    const metafieldData = response.data?.metafieldsSet;
+    if (metafieldData?.userErrors?.length > 0) {
+      console.error("Metafield user errors:", metafieldData.userErrors);
+      throw new Error(`Metafield error: ${metafieldData.userErrors.map((e: any) => e.message).join('; ')}`);
+    }
+
+    return true;
   }
 
   /**

@@ -43,6 +43,14 @@ export class ShopifyClient {
         "Shopify credentials not configured. Please set SHOPIFY_SHOP and SHOPIFY_ADMIN_ACCESS_TOKEN environment variables."
       );
     }
+
+    // Validate shop name format
+    if (!this.shopName.includes('.')) {
+      throw new Error(
+        `Invalid SHOPIFY_SHOP format: "${this.shopName}". ` +
+        `Please ensure SHOPIFY_SHOP is in the format "myshop.myshopify.com"`
+      );
+    }
   }
 
   /**
@@ -512,8 +520,8 @@ export class ShopifyClient {
               console.log("Attempting to parse response as JSON despite content-type mismatch...");
               data = JSON.parse(errorText);
               console.log("✓ Successfully parsed as JSON");
-            } catch {
-              throw new Error(`Invalid response format from Shopify. Expected JSON but got ${contentType}. Body: ${errorText.substring(0, 200)}`);
+            } catch (jsonError) {
+              throw new Error(`Shopify returned invalid response format. Expected JSON but got ${contentType || 'unknown'}. Response: ${errorText.substring(0, 200)}`);
             }
           } else {
             data = await response.json();
@@ -524,7 +532,7 @@ export class ShopifyClient {
         }
 
         if (!data.products || !Array.isArray(data.products)) {
-          console.warn("No products array in Shopify response");
+          console.warn("No products array in Shopify response. Data:", JSON.stringify(data).substring(0, 200));
           return [];
         }
 
