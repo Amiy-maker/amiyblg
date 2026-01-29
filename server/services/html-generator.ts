@@ -540,12 +540,12 @@ function getBlogStyles(): string {
     /* Lists */
     .blog-content ul,
     .blog-content ol {
-      margin: 30px 0 30px 35px;
+      margin: 16px 0 28px 35px;
       line-height: 1.9;
     }
 
     .blog-content li {
-      margin-bottom: 15px;
+      margin-bottom: 16px;
       font-size: 1.05em;
       color: #3a3a3a;
     }
