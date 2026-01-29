@@ -4,7 +4,7 @@ import { getShopifyClient } from "../services/shopify-client.js";
 export const handleGetProducts: RequestHandler = async (req, res) => {
   try {
     console.log("GET /api/products request received");
-    const limit = parseInt(req.query.limit as string) || 50;
+    const limit = parseInt(req.query.limit as string) || 250;
     console.log(`Fetching products with limit: ${limit}`);
 
     const shopifyClient = getShopifyClient();
