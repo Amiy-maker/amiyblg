@@ -6,6 +6,14 @@ import { GenerateHTMLRequest, GenerateHTMLResponse } from "@shared/api";
 import { toast } from "sonner";
 import { Copy, Download, Zap, Upload, Edit2, Trash2 } from "lucide-react";
 import * as mammoth from "mammoth";
+import { RelatedProductsField } from "@/components/blog/RelatedProductsField";
+
+interface Product {
+  id: string;
+  title: string;
+  handle: string;
+  image?: string;
+}
 
 export default function BlogGenerator() {
   const [documentContent, setDocumentContent] = useState("");
@@ -25,6 +33,7 @@ export default function BlogGenerator() {
   const [uploadingImages, setUploadingImages] = useState<Record<string, boolean>>({});
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const [featuredImage, setFeaturedImage] = useState<{ url: string; uploading: boolean } | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const featuredImageInputRef = useRef<HTMLInputElement>(null);
@@ -602,6 +611,7 @@ export default function BlogGenerator() {
           publicationDate: publishData.publicationDate,
           imageUrls: Object.keys(imageUrls).length > 0 ? imageUrls : undefined,
           featuredImageUrl: featuredImage?.url,
+          relatedProducts: relatedProducts.length > 0 ? relatedProducts : undefined,
         }),
       });
 
@@ -1125,6 +1135,13 @@ export default function BlogGenerator() {
                     })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="border-t pt-4">
+                <RelatedProductsField
+                  selectedProducts={relatedProducts}
+                  onChange={setRelatedProducts}
                 />
               </div>
 

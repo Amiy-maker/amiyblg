@@ -31,8 +31,11 @@ function expressPlugin(): Plugin {
     name: "express",
     apply: "serve",
     configureServer(server) {
-      return () => {
-        server.middlewares.use(async (req, res, next) => {
+      // Register the Express middleware to handle API routes BEFORE Vite's default middleware
+      // Use unshift to add it at the beginning of the middleware stack
+      const expressMiddleware = async (req: any, res: any, next: any) => {
+        // Only handle API routes with Express
+        if (req.url?.startsWith("/api/")) {
           // Lazy-load the server on first request
           if (!expressApp) {
             try {
@@ -40,17 +43,29 @@ function expressPlugin(): Plugin {
               expressApp = createServer();
             } catch (error) {
               console.error("Failed to load Express server:", error);
-              return res.status(500).json({
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({
                 error: "Server initialization failed",
                 details: error instanceof Error ? error.message : String(error),
-              });
+              }));
+              return;
             }
           }
 
           // Delegate to Express server
           expressApp(req, res, next);
-        });
+        } else {
+          // Let other requests pass through to Vite's default middleware
+          next();
+        }
       };
+
+      // Unshift to add at the beginning of the middleware stack
+      server.middlewares.stack.unshift({
+        route: "",
+        handle: expressMiddleware,
+      });
     },
   };
 }

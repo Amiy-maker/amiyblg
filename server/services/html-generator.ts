@@ -53,7 +53,7 @@ export function generateHTML(
     console.log("Adding featured image to HTML:", featuredImageUrl);
     // Use inline styles for maximum Shopify compatibility
     // Featured image is styled with consistent aspect ratio and shadow
-    const featuredImageHtml = `<img src="${featuredImageUrl}" alt="Featured image" style="width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; margin: 0 0 40px 0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); display: block;" />`;
+    const featuredImageHtml = `<img src="${featuredImageUrl}" alt="Featured image" style="width: 100%; max-width: 900px; height: auto; aspect-ratio: 16 / 9; object-fit: contain; margin: 0 auto 40px auto; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); display: block; background-color: #f5f5f5;" />`;
     sections.push(featuredImageHtml);
   } else {
     console.log("Featured image not included. includeImages:", includeImages, "featuredImageUrl:", featuredImageUrl);
@@ -146,7 +146,7 @@ function generateHero(
   section: ParsedSection,
   imageUrls: Record<string, string>
 ): string {
-  const h1 = `<h1 style="font-size: 2.5em; font-weight: 700; margin-bottom: 20px; margin-top: 0; line-height: 1.2; color: #1a1a1a; letter-spacing: -0.5px;">${textWithLinksToHTML(content)}</h1>`;
+  const h1 = `<h1 style="font-size: 2.5em; font-weight: 700; margin-bottom: 20px; margin-top: 0; line-height: 1.2; color: #4d4f2f; letter-spacing: -0.5px;">${textWithLinksToHTML(content)}</h1>`;
 
   if (includeImages && rule.image?.position === "after" && section.images && section.images.length > 0) {
     const image = section.images[0];
@@ -157,7 +157,7 @@ function generateHero(
     // Only include image if URL is available (don't use placeholders)
     if (imageUrl) {
       console.log(`Resolved image URL: ${imageUrl}`);
-      const imgTag = `<img src="${imageUrl}" alt="${image.keyword}" style="width: 100%; height: auto; display: block; margin: 25px auto 30px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" />`;
+      const imgTag = `<img src="${imageUrl}" alt="${image.keyword}" style="width: 100%; max-width: 850px; height: auto; display: block; margin: 25px auto 30px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); object-fit: contain; background-color: #f5f5f5;" />`;
       return `${h1}\n${imgTag}`;
     } else {
       console.log(`Image URL not available for keyword: ${image.keyword}`);
@@ -182,7 +182,7 @@ function generateList(
   let html = `<${tag} style="${listStyle}">\n${items}\n</${tag}>`;
 
   if (title) {
-    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
+    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
   }
 
   return html;
@@ -213,7 +213,7 @@ function generateSectionBody(
         lines[0].length < 60 &&
         (lines[0].endsWith(":") || lines[0] === lines[0].toUpperCase())
       ) {
-        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
+        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
         lines.shift();
       }
 
@@ -232,7 +232,7 @@ function generateSectionBody(
         // Only include image if URL is available (don't use placeholders)
         if (imageUrl) {
           console.log(`Resolved image URL for section: ${imageUrl}`);
-          result += `\n<img src="${imageUrl}" alt="${image.keyword}" style="width: 100%; height: auto; display: block; margin: 30px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" />`;
+          result += `\n<img src="${imageUrl}" alt="${image.keyword}" style="width: 100%; max-width: 850px; height: auto; display: block; margin: 30px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); object-fit: contain; background-color: #f5f5f5;" />`;
         } else {
           console.log(`Image URL not available for keyword: ${image.keyword}`);
         }
@@ -263,7 +263,7 @@ function generateComparisonTable(lines: string[]): string {
   // Header row
   html += '<thead style="background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);"><tr>';
   for (const header of headers) {
-    html += `<th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #1a1a1a; border-bottom: 2px solid #d0d0d0; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;">${textWithLinksToHTML(header)}</th>`;
+    html += `<th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #4d4f2f; border-bottom: 2px solid #d0d0d0; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;">${textWithLinksToHTML(header)}</th>`;
   }
   html += "</tr></thead>\n";
 
@@ -352,15 +352,19 @@ function generateFAQSection(lines: string[]): string {
     return "<p style=\"font-size: 1.05em; line-height: 1.8; margin-bottom: 15px; margin-top: 0; color: #3a3a3a;\">No FAQs provided</p>";
   }
 
-  let html = '<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 45px; margin-bottom: 25px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">Frequently Asked Questions</h2>\n';
+  let html = '<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 45px; margin-bottom: 25px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">Frequently Asked Questions</h2>\n';
   html += '<div style="margin: 20px 0;">\n';
 
   for (const faq of faqs) {
     html += `
-<div style="margin-bottom: 25px; padding: 20px; border: 1px solid #d0d0d0; border-radius: 6px; background-color: #f9f9f9;">
-  <p style="margin: 0 0 12px 0; font-weight: 700; font-size: 1.05em; color: #1a1a1a; line-height: 1.6;"><strong>Q: ${textWithLinksToHTML(faq.question)}</strong></p>
-  <p style="margin: 0; font-size: 1em; color: #3a3a3a; line-height: 1.8;">A: ${textWithLinksToHTML(faq.answer)}</p>
-</div>
+<details style="margin-bottom: 15px; border: 1px solid #d0d0d0; border-radius: 6px; overflow: hidden;">
+  <summary style="padding: 18px 20px; background-color: #f9f9f9; cursor: pointer; font-weight: 600; font-size: 1.05em; color: #4d4f2f; user-select: none; display: flex; align-items: center; transition: background-color 0.2s ease;">
+    ${textWithLinksToHTML(faq.question)}
+  </summary>
+  <div style="padding: 18px 20px; border-top: 1px solid #e0e0e0; background-color: #ffffff; color: #3a3a3a; font-size: 1em; line-height: 1.8;">
+    ${textWithLinksToHTML(faq.answer)}
+  </div>
+</details>
 `;
   }
 

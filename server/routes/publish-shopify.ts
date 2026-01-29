@@ -3,6 +3,13 @@ import { parseDocument } from "../services/document-parser.js";
 import { generateStyledHTML } from "../services/html-generator.js";
 import { getShopifyClient } from "../services/shopify-client.js";
 
+interface RelatedProduct {
+  id: string;
+  title: string;
+  handle: string;
+  image?: string;
+}
+
 export interface PublishShopifyRequest {
   document: string;
   title: string;
@@ -11,11 +18,12 @@ export interface PublishShopifyRequest {
   publicationDate?: string;
   imageUrls?: Record<string, string>; // Maps image keyword to Shopify URL
   featuredImageUrl?: string; // Featured/hero image URL
+  relatedProducts?: RelatedProduct[]; // Related products to save to metafield
 }
 
 export const handlePublishShopify: RequestHandler = async (req, res) => {
   try {
-    const { document, title, author, tags, publicationDate, imageUrls, featuredImageUrl } = req.body as PublishShopifyRequest;
+    const { document, title, author, tags, publicationDate, imageUrls, featuredImageUrl, relatedProducts } = req.body as PublishShopifyRequest;
 
     if (!document || !title) {
       return res.status(400).json({
@@ -103,12 +111,41 @@ export const handlePublishShopify: RequestHandler = async (req, res) => {
       image: featuredImageUrl ? { src: featuredImageUrl } : undefined,
     });
 
+    // Save related products to metafield if provided
+    if (relatedProducts && relatedProducts.length > 0) {
+      try {
+        console.log(`Saving ${relatedProducts.length} related products to metafield`);
+        const relatedProductsValue = JSON.stringify(
+          relatedProducts.map((p) => ({
+            id: p.id,
+            title: p.title,
+            handle: p.handle,
+            image: p.image,
+          }))
+        );
+        await shopifyClient.updateArticleMetafield(
+          blogId,
+          articleId,
+          "custom",
+          "related_products",
+          relatedProductsValue,
+          "json"
+        );
+        console.log("Related products metafield updated successfully");
+      } catch (error) {
+        console.error("Error saving related products to metafield:", error);
+        // Don't fail the entire publish if metafield update fails
+        // The article is already published
+      }
+    }
+
     res.json({
       success: true,
       message: "Article published to Shopify successfully",
       articleId,
       metadata: parsed.metadata,
       featuredImageIncluded: !!featuredImageUrl,
+      relatedProductsCount: relatedProducts?.length || 0,
     });
   } catch (error) {
     console.error("Error publishing to Shopify:", error);
