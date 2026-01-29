@@ -611,6 +611,7 @@ export default function BlogGenerator() {
           publicationDate: publishData.publicationDate,
           imageUrls: Object.keys(imageUrls).length > 0 ? imageUrls : undefined,
           featuredImageUrl: featuredImage?.url,
+          relatedProducts: relatedProducts.length > 0 ? relatedProducts : undefined,
         }),
       });
 
