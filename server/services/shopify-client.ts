@@ -456,7 +456,7 @@ export class ShopifyClient {
   }
 
   /**
-   * Fetch products from Shopify
+   * Fetch products from Shopify with timeout
    */
   async getProducts(limit: number = 250): Promise<Array<{ id: string; title: string; handle: string; image?: string }>> {
     this.validateCredentials();
@@ -464,41 +464,71 @@ export class ShopifyClient {
     const restUrl = `${this.baseUrl}/products.json?limit=${Math.min(limit, 250)}&fields=id,title,handle,image`;
 
     try {
-      const response = await fetch(restUrl, {
-        headers: {
-          "X-Shopify-Access-Token": this.accessToken,
-        },
-      });
+      console.log(`Fetching products from Shopify: ${restUrl}`);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Shopify API error (${response.status}):`, errorText);
-        throw new Error(`Failed to fetch products from Shopify: ${response.status} ${response.statusText}`);
+      // Create abort controller for timeout (30 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      try {
+        const response = await fetch(restUrl, {
+          headers: {
+            "X-Shopify-Access-Token": this.accessToken,
+          },
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Shopify API error (${response.status}):`, errorText);
+
+          if (response.status === 401) {
+            throw new Error("Shopify authentication failed. Please check your access token.");
+          } else if (response.status === 404) {
+            throw new Error("Shopify store not found. Please verify your shop name.");
+          } else {
+            throw new Error(`Failed to fetch products from Shopify: ${response.status} ${response.statusText}`);
+          }
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType?.includes("application/json")) {
+          const errorText = await response.text();
+          console.error("Invalid content type. Expected JSON but got:", contentType);
+          console.error("Response body (first 500 chars):", errorText.substring(0, 500));
+          throw new Error(`Invalid response format from Shopify. Expected JSON but got ${contentType}`);
+        }
+
+        const data = await response.json() as { products: Array<{ id: string; title: string; handle: string; image?: { src: string } }> };
+
+        if (!data.products || !Array.isArray(data.products)) {
+          console.warn("No products array in Shopify response");
+          return [];
+        }
+
+        console.log(`Successfully fetched ${data.products.length} products from Shopify`);
+
+        return data.products.map((product) => ({
+          id: product.id,
+          title: product.title,
+          handle: product.handle,
+          image: product.image?.src,
+        }));
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          console.error("Shopify API request timeout - took longer than 30 seconds");
+          throw new Error("Shopify API request timed out. The service may be temporarily unavailable.");
+        }
+
+        throw fetchError;
       }
-
-      const contentType = response.headers.get("content-type");
-      if (!contentType?.includes("application/json")) {
-        const errorText = await response.text();
-        console.error("Invalid content type. Expected JSON but got:", contentType);
-        console.error("Response body:", errorText);
-        throw new Error(`Invalid response format from Shopify. Expected JSON but got ${contentType}`);
-      }
-
-      const data = await response.json() as { products: Array<{ id: string; title: string; handle: string; image?: { src: string } }> };
-
-      if (!data.products) {
-        console.warn("No products found in Shopify response");
-        return [];
-      }
-
-      return data.products.map((product) => ({
-        id: product.id,
-        title: product.title,
-        handle: product.handle,
-        image: product.image?.src,
-      }));
     } catch (error) {
-      console.error("Error in getProducts:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error("Error in getProducts:", errorMsg);
       throw error;
     }
   }

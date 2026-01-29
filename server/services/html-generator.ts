@@ -146,7 +146,7 @@ function generateHero(
   section: ParsedSection,
   imageUrls: Record<string, string>
 ): string {
-  const h1 = `<h1 style="font-size: 2.5em; font-weight: 700; margin-bottom: 20px; margin-top: 0; line-height: 1.2; color: #4d4f2f; letter-spacing: -0.5px;">${textWithLinksToHTML(content)}</h1>`;
+  const h1 = `<h1 style="font-size: 2.5em; font-weight: 700; margin-bottom: 30px; margin-top: 0; line-height: 1.2; color: #424423; letter-spacing: -0.5px;">${textWithLinksToHTML(content)}</h1>`;
 
   if (includeImages && rule.image?.position === "after" && section.images && section.images.length > 0) {
     const image = section.images[0];
@@ -176,13 +176,13 @@ function generateList(
   title?: string
 ): string {
   const tag = listType === "ul" ? "ul" : "ol";
-  const listStyle = listType === "ul" ? "margin: 15px 0 15px 35px; line-height: 1.9;" : "margin: 15px 0 15px 35px; line-height: 1.9;";
-  const items = lines.map((line) => `<li style="margin-bottom: 10px; font-size: 1.05em; color: #3a3a3a;">${textWithLinksToHTML(line)}</li>`).join("\n");
+  const listStyle = listType === "ul" ? "margin: 20px 0 20px 35px; line-height: 1.9;" : "margin: 20px 0 20px 35px; line-height: 1.9;";
+  const items = lines.map((line) => `<li style="margin-bottom: 12px; font-size: 1.05em; color: #3a3a3a;">${textWithLinksToHTML(line)}</li>`).join("\n");
 
   let html = `<${tag} style="${listStyle}">\n${items}\n</${tag}>`;
 
   if (title) {
-    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
+    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 40px; margin-bottom: 20px; line-height: 1.3; color: #424423; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
   }
 
   return html;
@@ -213,14 +213,14 @@ function generateSectionBody(
         lines[0].length < 60 &&
         (lines[0].endsWith(":") || lines[0] === lines[0].toUpperCase())
       ) {
-        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
+        result += `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 40px; margin-bottom: 20px; line-height: 1.3; color: #424423; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${textWithLinksToHTML(lines[0])}</h2>\n`;
         lines.shift();
       }
 
       // Rest of content
       const bodyText = lines.join("\n").trim();
       if (bodyText) {
-        result += `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 15px; margin-top: 0; color: #3a3a3a;">${textWithLinksToHTML(bodyText)}</p>`;
+        result += `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 20px; margin-top: 0; color: #3a3a3a;">${textWithLinksToHTML(bodyText)}</p>`;
       }
 
       // Add image if enabled and available
@@ -263,7 +263,7 @@ function generateComparisonTable(lines: string[]): string {
   // Header row
   html += '<thead style="background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);"><tr>';
   for (const header of headers) {
-    html += `<th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #4d4f2f; border-bottom: 2px solid #d0d0d0; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;">${textWithLinksToHTML(header)}</th>`;
+    html += `<th style="padding: 15px 18px; text-align: left; font-weight: 600; color: #424423; border-bottom: 2px solid #d0d0d0; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;">${textWithLinksToHTML(header)}</th>`;
   }
   html += "</tr></thead>\n";
 
@@ -272,7 +272,7 @@ function generateComparisonTable(lines: string[]): string {
   for (const row of rows) {
     html += "<tr>";
     for (const cell of row) {
-      html += `<td style="padding: 12px 15px; border-bottom: 1px solid #e8e8e8; color: #3a3a3a;">${textWithLinksToHTML(cell)}</td>`;
+      html += `<td style="padding: 15px 18px; border-bottom: 1px solid #e8e8e8; color: #3a3a3a;">${textWithLinksToHTML(cell)}</td>`;
     }
     html += "</tr>";
   }
@@ -352,16 +352,16 @@ function generateFAQSection(lines: string[]): string {
     return "<p style=\"font-size: 1.05em; line-height: 1.8; margin-bottom: 15px; margin-top: 0; color: #3a3a3a;\">No FAQs provided</p>";
   }
 
-  let html = '<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 45px; margin-bottom: 25px; line-height: 1.3; color: #4d4f2f; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">Frequently Asked Questions</h2>\n';
-  html += '<div style="margin: 20px 0;">\n';
+  let html = '<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 50px; margin-bottom: 28px; line-height: 1.3; color: #424423; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">Frequently Asked Questions</h2>\n';
+  html += '<div style="margin: 25px 0;">\n';
 
   for (const faq of faqs) {
     html += `
-<details style="margin-bottom: 15px; border: 1px solid #d0d0d0; border-radius: 6px; overflow: hidden;">
-  <summary style="padding: 18px 20px; background-color: #f9f9f9; cursor: pointer; font-weight: 600; font-size: 1.05em; color: #4d4f2f; user-select: none; display: flex; align-items: center; transition: background-color 0.2s ease;">
+<details style="margin-bottom: 18px; border: 1px solid #d0d0d0; border-radius: 6px; overflow: hidden;">
+  <summary style="padding: 20px 22px; background-color: #f9f9f9; cursor: pointer; font-weight: 600; font-size: 1.05em; color: #424423; user-select: none; display: flex; align-items: center; transition: background-color 0.2s ease;">
     ${textWithLinksToHTML(faq.question)}
   </summary>
-  <div style="padding: 18px 20px; border-top: 1px solid #e0e0e0; background-color: #ffffff; color: #3a3a3a; font-size: 1em; line-height: 1.8;">
+  <div style="padding: 20px 22px; border-top: 1px solid #e0e0e0; background-color: #ffffff; color: #3a3a3a; font-size: 1em; line-height: 1.8;">
     ${textWithLinksToHTML(faq.answer)}
   </div>
 </details>
@@ -509,17 +509,17 @@ function getBlogStyles(): string {
       margin-bottom: 30px;
       margin-top: 0;
       line-height: 1.2;
-      color: #1a1a1a;
+      color: #424423;
       letter-spacing: -0.5px;
     }
 
     .blog-content h2 {
       font-size: 1.8em;
       font-weight: 600;
-      margin-top: 55px;
+      margin-top: 50px;
       margin-bottom: 28px;
       line-height: 1.3;
-      color: #1a1a1a;
+      color: #424423;
       border-bottom: 3px solid #e8e8e8;
       padding-bottom: 12px;
     }
@@ -530,13 +530,13 @@ function getBlogStyles(): string {
       margin-top: 40px;
       margin-bottom: 20px;
       line-height: 1.3;
-      color: #1a1a1a;
+      color: #424423;
     }
 
     .blog-content p {
       font-size: 1.05em;
       line-height: 1.8;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       color: #3a3a3a;
       text-align: justify;
     }
@@ -623,10 +623,10 @@ function getBlogStyles(): string {
     }
 
     .blog-content th {
-      padding: 18px;
+      padding: 15px 18px;
       text-align: left;
       font-weight: 600;
-      color: #1a1a1a;
+      color: #424423;
       border-bottom: 2px solid #d0d0d0;
       font-size: 0.95em;
       text-transform: uppercase;
@@ -634,7 +634,7 @@ function getBlogStyles(): string {
     }
 
     .blog-content td {
-      padding: 16px 18px;
+      padding: 15px 18px;
       border-bottom: 1px solid #e8e8e8;
       color: #3a3a3a;
     }
@@ -649,13 +649,14 @@ function getBlogStyles(): string {
 
     /* Details/Accordion */
     .blog-content details {
-      margin: 25px 0;
-      padding: 20px;
-      border: 1px solid #e0e0e0;
+      margin: 18px 0;
+      padding: 0;
+      border: 1px solid #d0d0d0;
       border-radius: 6px;
-      background-color: #fafafa;
+      background-color: transparent;
       cursor: pointer;
       transition: all 0.3s ease;
+      overflow: hidden;
     }
 
     .blog-content details:hover {
@@ -669,19 +670,25 @@ function getBlogStyles(): string {
 
     .blog-content summary {
       font-weight: 600;
-      font-size: 1.1em;
-      color: #1a1a1a;
+      font-size: 1.05em;
+      color: #424423;
       cursor: pointer;
       outline: none;
       user-select: none;
-      padding: 5px 0;
+      padding: 20px 22px;
+      background-color: #f9f9f9;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.2s ease;
     }
 
-    .blog-content details p {
-      margin-top: 18px;
-      margin-bottom: 0;
-      font-size: 1em;
+    .blog-content details > div {
+      padding: 20px 22px;
+      border-top: 1px solid #e0e0e0;
+      background-color: #ffffff;
       color: #3a3a3a;
+      font-size: 1em;
+      line-height: 1.8;
     }
 
     /* Schema markup */
