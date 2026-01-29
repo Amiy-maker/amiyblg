@@ -98,7 +98,7 @@ function generateSectionHTML(
       return generateHero(rawContent, rule, includeImages, section, imageUrls);
 
     case "section2":
-      return `<p>${escapeHTML(rawContent)}</p>`;
+      return `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 15px; margin-top: 0; color: #3a3a3a;">${textWithLinksToHTML(rawContent)}</p>`;
 
     case "section3":
       return generateList(lines, "ul", "Table of Contents");
@@ -110,13 +110,13 @@ function generateSectionHTML(
       return generateSectionBody(rawContent, includeImages, section, imageUrls);
 
     case "section6":
-      return `<blockquote>${escapeHTML(rawContent)}</blockquote>`;
+      return `<blockquote style="border-left: 5px solid #d4a574; padding: 25px 30px; margin: 20px 0; background-color: #fef9f5; font-style: italic; font-size: 1.15em; color: #5a5a5a; line-height: 1.8;">${textWithLinksToHTML(rawContent)}</blockquote>`;
 
     case "section7":
       return generateComparisonTable(lines);
 
     case "section8":
-      return `<blockquote>${escapeHTML(rawContent)}</blockquote>`;
+      return `<blockquote style="border-left: 5px solid #d4a574; padding: 25px 30px; margin: 20px 0; background-color: #fef9f5; font-style: italic; font-size: 1.15em; color: #5a5a5a; line-height: 1.8;">${textWithLinksToHTML(rawContent)}</blockquote>`;
 
     case "section9":
       return generateList(lines, "ol", "Steps");
@@ -128,7 +128,7 @@ function generateSectionHTML(
       return generateFAQSection(lines);
 
     case "section12":
-      return `<p>${escapeHTML(rawContent)}</p>`;
+      return `<p style="font-size: 1.05em; line-height: 1.8; margin-bottom: 15px; margin-top: 0; color: #3a3a3a;">${textWithLinksToHTML(rawContent)}</p>`;
 
     default:
       console.warn(`Unknown section ID: ${id}. Valid sections are section1-section12.`);
