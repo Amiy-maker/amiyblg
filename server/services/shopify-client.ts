@@ -465,6 +465,7 @@ export class ShopifyClient {
 
     try {
       console.log(`Fetching products from Shopify: ${restUrl}`);
+      console.log(`Shop: ${this.shopName}, API Version: ${this.apiVersion}`);
 
       // Create abort controller for timeout (30 seconds)
       const controller = new AbortController();
@@ -480,9 +481,13 @@ export class ShopifyClient {
 
         clearTimeout(timeoutId);
 
+        // Log response metadata
+        console.log(`Shopify response status: ${response.status} ${response.statusText}`);
+        console.log(`Response headers content-type: ${response.headers.get("content-type")}`);
+
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`Shopify API error (${response.status}):`, errorText);
+          console.error(`Shopify API error (${response.status}):`, errorText.substring(0, 500));
 
           if (response.status === 401) {
             throw new Error("Shopify authentication failed. Please check your access token.");
@@ -494,14 +499,29 @@ export class ShopifyClient {
         }
 
         const contentType = response.headers.get("content-type");
-        if (!contentType?.includes("application/json")) {
-          const errorText = await response.text();
-          console.error("Invalid content type. Expected JSON but got:", contentType);
-          console.error("Response body (first 500 chars):", errorText.substring(0, 500));
-          throw new Error(`Invalid response format from Shopify. Expected JSON but got ${contentType}`);
-        }
+        let data;
 
-        const data = await response.json() as { products: Array<{ id: string; title: string; handle: string; image?: { src: string } }> };
+        try {
+          if (!contentType?.includes("application/json")) {
+            const errorText = await response.text();
+            console.error("⚠️  Invalid content type. Expected JSON but got:", contentType);
+            console.error("Response body (first 500 chars):", errorText.substring(0, 500));
+
+            // Try to parse as JSON anyway in case content-type header is wrong
+            try {
+              console.log("Attempting to parse response as JSON despite content-type mismatch...");
+              data = JSON.parse(errorText);
+              console.log("✓ Successfully parsed as JSON");
+            } catch {
+              throw new Error(`Invalid response format from Shopify. Expected JSON but got ${contentType}. Body: ${errorText.substring(0, 200)}`);
+            }
+          } else {
+            data = await response.json();
+          }
+        } catch (parseError) {
+          console.error("❌ Failed to parse Shopify response:", parseError);
+          throw new Error(`Failed to parse Shopify response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+        }
 
         if (!data.products || !Array.isArray(data.products)) {
           console.warn("No products array in Shopify response");
