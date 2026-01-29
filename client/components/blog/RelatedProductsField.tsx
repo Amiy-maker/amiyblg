@@ -105,6 +105,8 @@ export function RelatedProductsField({
             }
 
             const data = await response.json();
+            console.log("Raw response data:", data);
+
             if (data.success && Array.isArray(data.products)) {
               console.log(`Successfully loaded ${data.products.length} products`);
               setProducts(data.products);
@@ -112,10 +114,23 @@ export function RelatedProductsField({
                 toast.info("No products found in your Shopify store");
               }
             } else if (Array.isArray(data)) {
+              console.log(`Successfully loaded ${data.length} products (plain array format)`);
               setProducts(data);
+            } else if (!data.success && data.code) {
+              // Handle error responses
+              const errorMessage = data.error || "Failed to fetch products";
+              console.error("API returned error:", data);
+              throw new Error(errorMessage);
             } else {
-              console.error("Unexpected response format:", data);
-              throw new Error("Invalid products data received from server");
+              console.error("Unexpected response format:", {
+                data,
+                isSuccessTrue: data.success === true,
+                isProductsArray: Array.isArray(data.products),
+                isDataArray: Array.isArray(data),
+                keys: Object.keys(data),
+                dataType: typeof data
+              });
+              throw new Error(`Invalid products data received from server. Response type: ${typeof data}, Keys: ${Object.keys(data).join(", ")}`);
             }
 
             // Success - break out of retry loop
