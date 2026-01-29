@@ -428,6 +428,55 @@ function escapeHTML(text: string): string {
 }
 
 /**
+ * Convert text with markdown links to HTML
+ * Handles format: [link text](url)
+ * Includes inline styles for maximum compatibility
+ */
+function textWithLinksToHTML(text: string): string {
+  // First, escape HTML special characters except for brackets and parentheses we'll use for links
+  let escaped = text.replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+  // Then convert markdown links to HTML links with inline styles
+  escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
+    // Validate URL to prevent XSS
+    if (isValidURL(url)) {
+      return `<a href="${escapeHTML(url)}" style="color: #2563eb; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;">${linkText}</a>`;
+    }
+    return match; // Return original if URL is invalid
+  });
+
+  return escaped;
+}
+
+/**
+ * Check if a URL is valid and safe
+ */
+function isValidURL(url: string): boolean {
+  // Reject dangerous protocols
+  if (url.startsWith("javascript:") || url.startsWith("data:") || url.startsWith("vbscript:")) {
+    return false;
+  }
+
+  // Allow http, https, mailto, and relative URLs
+  if (url.startsWith("http://") || url.startsWith("https://") ||
+      url.startsWith("mailto:") || url.startsWith("/") ||
+      url.startsWith("#") || url.startsWith("?")) {
+    return true;
+  }
+
+  // Allow relative URLs (no protocol)
+  if (!url.includes("://")) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Generate HTML with inline styles (for Shopify/external publishing)
  * Wraps content in a div with core styles for Shopify compatibility
  */
