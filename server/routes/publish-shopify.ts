@@ -98,15 +98,36 @@ export const handlePublishShopify: RequestHandler = async (req, res) => {
     // Generate styled HTML for Shopify
     // Important: DO NOT include featured image in body HTML - it will be set as the article image field
     // This ensures the featured image appears in Shopify's "Image" field, not in the content
-    const bodyHtml = generateStyledHTML(parsed, {
-      includeSchema: true,
-      includeImages: true,
-      blogTitle: title,
-      authorName: author,
-      imageUrls: imageUrls || {},
-      // CRITICAL: Don't pass featuredImageUrl here - we set it separately as article.image
-      featuredImageUrl: undefined,
-    });
+    let bodyHtml: string;
+    try {
+      console.log("Generating styled HTML...");
+      bodyHtml = generateStyledHTML(parsed, {
+        includeSchema: true,
+        includeImages: true,
+        blogTitle: title,
+        authorName: author,
+        imageUrls: imageUrls || {},
+        // CRITICAL: Don't pass featuredImageUrl here - we set it separately as article.image
+        featuredImageUrl: undefined,
+      });
+
+      if (!bodyHtml || bodyHtml.trim().length === 0) {
+        console.error("CRITICAL: Generated HTML is empty");
+        return res.status(500).json({
+          error: "HTML generation failed",
+          details: "The generated HTML is empty. Please check your document content.",
+        });
+      }
+
+      console.log("HTML generated successfully. Size:", bodyHtml.length, "characters");
+    } catch (htmlError) {
+      const htmlErrorMsg = htmlError instanceof Error ? htmlError.message : String(htmlError);
+      console.error("Error generating HTML:", htmlErrorMsg);
+      return res.status(500).json({
+        error: "Failed to generate HTML from document",
+        details: htmlErrorMsg,
+      });
+    }
 
     console.log("Publishing with featured image URL:", featuredImageUrl);
     console.log("Body HTML length:", bodyHtml.length);
