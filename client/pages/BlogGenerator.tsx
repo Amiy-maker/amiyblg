@@ -938,7 +938,7 @@ export default function BlogGenerator() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setShowPublishModal(true)}
+                          onClick={handleOpenPublishModal}
                           className="gap-2 bg-green-50 hover:bg-green-100 text-green-700"
                         >
                           <Upload size={16} />
