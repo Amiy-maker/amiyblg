@@ -1137,6 +1137,13 @@ export default function BlogGenerator() {
                 />
               </div>
 
+              <div className="border-t pt-4">
+                <RelatedProductsField
+                  selectedProducts={relatedProducts}
+                  onChange={setRelatedProducts}
+                />
+              </div>
+
               <div className="flex gap-2 pt-4">
                 <Button
                   variant="outline"
