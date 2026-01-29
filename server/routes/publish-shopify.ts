@@ -177,9 +177,13 @@ export const handlePublishShopify: RequestHandler = async (req, res) => {
     console.log("Featured image URL for publication:", featuredImageUrl ? 'present' : 'missing');
     console.log("Blog ID:", blogId);
     console.log("Article title:", title);
+    console.log("Article tags:", tags?.length || 0);
+    console.log("Article author:", author || "Blog Generator (default)");
+    console.log("Body HTML size:", bodyHtml.length, "bytes");
 
     let articleId: string;
     try {
+      console.log("Sending article to Shopify REST API...");
       articleId = await shopifyClient.publishArticle(blogId, {
         title,
         bodyHtml,
@@ -188,10 +192,11 @@ export const handlePublishShopify: RequestHandler = async (req, res) => {
         tags: tags || [],
         image: featuredImageUrl ? { src: featuredImageUrl } : undefined,
       });
-      console.log("Article published successfully. Article ID:", articleId);
+      console.log("✓ Article published successfully. Article ID:", articleId);
     } catch (publishError) {
       const publishErrorMsg = publishError instanceof Error ? publishError.message : String(publishError);
-      console.error("Article publication failed:", publishErrorMsg);
+      console.error("✗ Article publication failed:", publishErrorMsg);
+      console.error("Error details:", publishError);
       throw publishError;
     }
 
