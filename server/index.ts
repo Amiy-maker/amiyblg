@@ -9,6 +9,7 @@ import { handlePublishShopify } from "./routes/publish-shopify.js";
 import { handleUploadImage } from "./routes/upload-image.js";
 import { handleVerifyPassword } from "./routes/verify-password.js";
 import { handleGetProducts } from "./routes/get-products.js";
+import { handleValidateShopify } from "./routes/validate-shopify.js";
 
 // Configure multer for file uploads (keep in memory for simplicity)
 const upload = multer({
