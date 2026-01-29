@@ -509,17 +509,17 @@ function getBlogStyles(): string {
       margin-bottom: 30px;
       margin-top: 0;
       line-height: 1.2;
-      color: #1a1a1a;
+      color: #424423;
       letter-spacing: -0.5px;
     }
 
     .blog-content h2 {
       font-size: 1.8em;
       font-weight: 600;
-      margin-top: 55px;
+      margin-top: 50px;
       margin-bottom: 28px;
       line-height: 1.3;
-      color: #1a1a1a;
+      color: #424423;
       border-bottom: 3px solid #e8e8e8;
       padding-bottom: 12px;
     }
@@ -530,13 +530,13 @@ function getBlogStyles(): string {
       margin-top: 40px;
       margin-bottom: 20px;
       line-height: 1.3;
-      color: #1a1a1a;
+      color: #424423;
     }
 
     .blog-content p {
       font-size: 1.05em;
       line-height: 1.8;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       color: #3a3a3a;
       text-align: justify;
     }
