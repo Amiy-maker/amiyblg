@@ -121,19 +121,20 @@ const BLOG_CSS = `
 
   /* Lists */
   ul, ol {
-    margin-bottom: 24px;
+    margin-top: 12px;
+    margin-bottom: 28px;
     margin-left: 30px;
     padding-left: 0;
   }
 
   li {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     line-height: 1.8;
     color: #444;
   }
 
   li + li {
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
   /* Nested lists */
