@@ -176,12 +176,12 @@ function generateList(
   title?: string
 ): string {
   const tag = listType === "ul" ? "ul" : "ol";
-  const items = lines.map((line) => `<li>${escapeHTML(line)}</li>`).join("\n");
+  const items = lines.map((line) => `<li style="margin-bottom: 10px; font-size: 1.05em; color: #3a3a3a;">${textWithLinksToHTML(line)}</li>`).join("\n");
 
-  let html = `<${tag}>\n${items}\n</${tag}>`;
+  let html = `<${tag} style="margin: 15px 0 15px 35px; line-height: 1.9;">\n${items}\n</${tag}>`;
 
   if (title) {
-    html = `<h2>${title}</h2>\n${html}`;
+    html = `<h2 style="font-size: 1.8em; font-weight: 600; margin-top: 25px; margin-bottom: 15px; line-height: 1.3; color: #1a1a1a; border-bottom: 3px solid #e8e8e8; padding-bottom: 12px;">${title}</h2>\n${html}`;
   }
 
   return html;
