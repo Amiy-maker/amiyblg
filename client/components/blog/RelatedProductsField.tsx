@@ -33,13 +33,32 @@ export function RelatedProductsField({
       setIsLoading(true);
       try {
         const response = await fetch("/api/products");
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`API error (${response.status}):`, errorText);
+          throw new Error(`Failed to fetch products: ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType?.includes("application/json")) {
+          console.error(`Invalid content type: ${contentType}`);
+          throw new Error("Server returned invalid response format");
+        }
+
         const data = await response.json();
-        if (data.success) {
+        if (data.success && Array.isArray(data.products)) {
           setProducts(data.products);
+        } else if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          console.error("Unexpected response format:", data);
+          toast.error("Invalid products data received");
         }
       } catch (error) {
         console.error("Error fetching products:", error);
-        toast.error("Failed to fetch products");
+        const errorMsg = error instanceof Error ? error.message : "Unknown error";
+        toast.error(`Failed to fetch products: ${errorMsg}`);
       } finally {
         setIsLoading(false);
       }
