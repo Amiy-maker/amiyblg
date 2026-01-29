@@ -497,6 +497,24 @@ function getBlogStyles(): string {
       text-align: justify;
     }
 
+    /* Links */
+    .blog-content a {
+      color: #2563eb;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .blog-content a:hover {
+      color: #1d4ed8;
+      text-decoration-thickness: 2px;
+    }
+
+    .blog-content a:visited {
+      color: #7c3aed;
+    }
+
     /* Images */
     .blog-content img {
       max-width: 100%;
