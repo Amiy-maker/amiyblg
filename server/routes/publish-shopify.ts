@@ -101,16 +101,42 @@ export const handlePublishShopify: RequestHandler = async (req, res) => {
     // Publish to Shopify
     const shopifyClient = getShopifyClient();
 
-    // Validate connection first
-    const isConnected = await shopifyClient.validateConnection();
+    // Validate connection first with detailed error handling
+    console.log("Validating Shopify connection before publishing...");
+    let isConnected = false;
+    let connectionError: Error | null = null;
+
+    try {
+      isConnected = await shopifyClient.validateConnection();
+    } catch (err) {
+      connectionError = err instanceof Error ? err : new Error(String(err));
+      console.error("Connection validation error:", connectionError.message);
+    }
+
     if (!isConnected) {
+      const errorMessage = connectionError?.message || "Unable to connect to Shopify. Please check your credentials.";
+      console.error("Publishing failed due to connection error:", errorMessage);
       return res.status(503).json({
-        error: "Unable to connect to Shopify. Please check your credentials.",
+        error: errorMessage,
+        suggestion: "Please verify your Shopify credentials and try again.",
       });
     }
 
     // Get blog ID
-    const blogId = await shopifyClient.getBlogId();
+    console.log("Retrieving blog ID...");
+    let blogId: string;
+    try {
+      blogId = await shopifyClient.getBlogId();
+      console.log(`Retrieved blog ID: ${blogId}`);
+    } catch (err) {
+      const blogError = err instanceof Error ? err.message : String(err);
+      console.error("Failed to get blog ID:", blogError);
+      return res.status(400).json({
+        error: "Failed to retrieve blog information from Shopify",
+        details: blogError,
+        suggestion: "Please ensure your Shopify store has at least one blog and your access token has the necessary permissions.",
+      });
+    }
 
     // Publish article with featured image as the article image field (not in body HTML)
     console.log("Featured image URL for publication:", featuredImageUrl ? 'present' : 'missing');
