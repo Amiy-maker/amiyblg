@@ -32,7 +32,8 @@ export function RelatedProductsField({
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("/api/products");
+        // Fetch more products to ensure we get all or most products from the store
+        const response = await fetch("/api/products?limit=250");
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -72,13 +73,17 @@ export function RelatedProductsField({
     const isSelected = selectedProducts.some((p) => p.id === product.id);
     if (isSelected) return false;
 
-    // Filter by search term
-    if (!searchTerm.trim()) return false;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      product.title.toLowerCase().includes(searchLower) ||
-      product.handle.toLowerCase().includes(searchLower)
-    );
+    // Filter by search term (if provided)
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        product.title.toLowerCase().includes(searchLower) ||
+        product.handle.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // If no search term, show all products
+    return true;
   });
 
   const handleAddProduct = (product: Product) => {
@@ -117,16 +122,18 @@ export function RelatedProductsField({
             <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
             <Input
               type="text"
-              placeholder={isLoading ? "Loading products..." : "Search products..."}
+              placeholder={isLoading ? "Loading products..." : "Search products or click to browse..."}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setShowDropdown(e.target.value.length > 0);
+                setShowDropdown(true);
               }}
               onFocus={() => {
-                if (searchTerm.length > 0) {
-                  setShowDropdown(true);
-                }
+                setShowDropdown(true);
+              }}
+              onBlur={() => {
+                // Delay closing dropdown to allow click handling
+                setTimeout(() => setShowDropdown(false), 200);
               }}
               disabled={isLoading}
               className="pl-10"
@@ -135,7 +142,7 @@ export function RelatedProductsField({
         </div>
 
         {/* Dropdown */}
-        {showDropdown && searchTerm.length > 0 && (
+        {showDropdown && (
           <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
