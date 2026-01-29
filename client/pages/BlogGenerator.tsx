@@ -36,6 +36,52 @@ export default function BlogGenerator() {
   const sections = getSectionsByOrder();
 
   /**
+   * Load products from Shopify
+   */
+  const loadProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const response = await fetch("/api/products");
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorCode = data.code || "UNKNOWN_ERROR";
+        const errorMsg = data.details || data.error || "Failed to load products";
+
+        // Provide helpful error messages based on error code
+        if (errorCode === "SHOPIFY_CONNECTION_FAILED") {
+          toast.error("Cannot connect to Shopify. Please verify your credentials are set up.");
+        } else if (errorCode === "SHOPIFY_AUTH_ERROR") {
+          toast.error("Shopify authentication failed. Please check your access token.");
+        } else if (errorCode === "SHOPIFY_NOT_CONFIGURED") {
+          toast.error("Shopify is not configured. Please set SHOPIFY_SHOP and SHOPIFY_ADMIN_ACCESS_TOKEN.");
+        } else {
+          toast.error(`Products Error: ${errorMsg}`);
+        }
+        return;
+      }
+
+      if (!data.products || !Array.isArray(data.products)) {
+        toast.error("Products Error: Server returned invalid response format");
+        return;
+      }
+
+      setProducts(data.products);
+
+      if (data.products.length === 0) {
+        toast.info("No products found in your Shopify store");
+      } else {
+        toast.success(`Loaded ${data.products.length} products from Shopify`);
+      }
+    } catch (error) {
+      console.error("Error loading products:", error);
+      toast.error(`Error loading products: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  /**
    * Handle document file upload
    */
   const handleDocumentUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
