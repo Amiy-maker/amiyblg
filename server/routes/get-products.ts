@@ -17,6 +17,7 @@ const getProductsHandler: RequestHandler = async (req, res) => {
       shopifyClient = getShopifyClient();
     } catch (clientError) {
       console.error("Failed to initialize Shopify client:", clientError instanceof Error ? clientError.message : String(clientError));
+      res.setHeader("Content-Type", "application/json");
       return res.status(503).json({
         success: false,
         error: "Shopify not configured",
