@@ -62,7 +62,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     console.log("Attempting to fetch products from Shopify...");
-    let products = await shopifyClient.getProducts(limit);
+    let products;
+    try {
+      products = await shopifyClient.getProducts(limit);
+    } catch (productsError) {
+      const errorMsg = productsError instanceof Error ? productsError.message : String(productsError);
+      console.error("❌ Error fetching products from Shopify:", errorMsg);
+      throw productsError;
+    }
 
     // Ensure products is always an array
     if (!Array.isArray(products)) {
