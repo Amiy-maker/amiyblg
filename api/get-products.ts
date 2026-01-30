@@ -12,12 +12,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const limit = parseInt(req.query.limit as string) || 250;
     console.log(`Fetching products with limit: ${limit}`);
 
+    // Always set content type and caching headers at the start
+    res.setHeader("Content-Type", "application/json");
+
     let shopifyClient;
     try {
       shopifyClient = getShopifyClient();
     } catch (clientError) {
       console.error("Failed to initialize Shopify client:", clientError instanceof Error ? clientError.message : String(clientError));
-      res.setHeader("Content-Type", "application/json");
       return res.status(503).json({
         success: false,
         error: "Shopify not configured",
@@ -46,15 +48,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     console.log("Attempting to fetch products from Shopify...");
-    const products = await shopifyClient.getProducts(limit);
-    console.log(`Successfully fetched ${products.length} products`);
+    let products = await shopifyClient.getProducts(limit);
 
-    res.setHeader("Content-Type", "application/json");
-    res.json({
+    // Ensure products is always an array
+    if (!Array.isArray(products)) {
+      console.warn("getProducts did not return an array, converting to array. Value:", products);
+      products = [];
+    }
+
+    console.log(`Successfully fetched ${products.length} products`);
+    console.log("Products type:", Array.isArray(products) ? "array" : typeof products);
+    if (Array.isArray(products) && products.length > 0) {
+      console.log("First product:", products[0]);
+    }
+
+    const response = {
       success: true,
-      products,
-      count: products.length,
-    });
+      products: Array.isArray(products) ? products : [],
+      count: (Array.isArray(products) ? products : []).length,
+    };
+    console.log("Sending response:", JSON.stringify(response).substring(0, 500));
+    res.json(response);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("Error fetching products:", errorMessage);
@@ -100,7 +114,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       userMessage = "Shopify store could not be found. Check your shop name.";
     }
 
-    res.setHeader("Content-Type", "application/json");
     res.status(status).json({
       success: false,
       error: userMessage,
