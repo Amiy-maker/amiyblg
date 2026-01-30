@@ -112,6 +112,7 @@ const getProductsHandler: RequestHandler = async (req, res) => {
       userMessage = "Shopify store could not be found. Check your shop name.";
     }
 
+    res.setHeader("Content-Type", "application/json");
     res.status(status).json({
       success: false,
       error: userMessage,
