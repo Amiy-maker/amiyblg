@@ -203,29 +203,40 @@ export const handlePublishShopify: RequestHandler = async (req, res) => {
     // Save related products to metafield if provided
     if (relatedProducts && relatedProducts.length > 0) {
       try {
-        console.log(`Saving ${relatedProducts.length} related products to metafield`);
-        const relatedProductsValue = JSON.stringify(
-          relatedProducts.map((p) => ({
-            id: p.id,
-            title: p.title,
-            handle: p.handle,
-            image: p.image,
-          }))
-        );
-        console.log("Metafield value size:", relatedProductsValue.length, "bytes");
+        console.log(`✓ Saving ${relatedProducts.length} related products to metafield (type: list.product_reference)`);
+
+        // For list.product_reference type, we need to pass an array of product GIDs
+        // Shopify product GID format: gid://shopify/Product/{product_id}
+        const productGids = relatedProducts.map((p) => {
+          // Extract numeric ID from Shopify ID format (e.g., "123456789" or "gid://shopify/Product/123456789")
+          const numericId = String(p.id).includes('/')
+            ? String(p.id).split('/').pop()
+            : String(p.id);
+          return `gid://shopify/Product/${numericId}`;
+        });
+
+        const relatedProductsValue = JSON.stringify(productGids);
+        console.log(`Metafield payload: ${productGids.length} product references, ${relatedProductsValue.length} bytes`);
+        console.log("Product GIDs:", productGids.join(", "));
+
         await shopifyClient.updateArticleMetafield(
           blogId,
           articleId,
           "custom",
           "related_products",
           relatedProductsValue,
-          "json"
+          "list.product_reference"
         );
         console.log("✓ Related products metafield updated successfully");
+        console.log(`  - Namespace: custom`);
+        console.log(`  - Key: related_products`);
+        console.log(`  - Type: list.product_reference`);
+        console.log(`  - Products: ${productGids.length}`);
       } catch (error) {
         const metafieldErrorMsg = error instanceof Error ? error.message : String(error);
         console.error("✗ Error saving related products to metafield:", metafieldErrorMsg);
         console.error("Note: Article is already published. Metafield update is optional.");
+        console.error("This error does not affect the article publication.");
         // Don't fail the entire publish if metafield update fails
         // The article is already published
       }

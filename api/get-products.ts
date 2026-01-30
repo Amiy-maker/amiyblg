@@ -53,30 +53,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Ensure products is always an array
     if (!Array.isArray(products)) {
-      console.warn("getProducts did not return an array, converting to array. Value:", products);
+      console.warn("⚠️  getProducts did not return an array, converting to array. Value:", products);
       products = [];
     }
 
-    console.log(`Successfully fetched ${products.length} products`);
-    console.log("Products type:", Array.isArray(products) ? "array" : typeof products);
+    console.log(`✓ Successfully fetched ${products.length} products from Shopify`);
     if (Array.isArray(products) && products.length > 0) {
-      console.log("First product:", products[0]);
+      console.log("First product structure:", JSON.stringify(products[0]));
+    }
+
+    // Validate product structure
+    const validProducts = products.filter(p => p && typeof p === 'object' && p.id && p.title && p.handle);
+    if (validProducts.length < products.length) {
+      console.warn(`⚠️  Filtered out ${products.length - validProducts.length} invalid products`);
     }
 
     const response = {
       success: true,
-      products: Array.isArray(products) ? products : [],
-      count: (Array.isArray(products) ? products : []).length,
+      products: validProducts,
     };
-    console.log("Sending response:", JSON.stringify(response).substring(0, 500));
-    res.json(response);
+
+    console.log(`Sending response: ${validProducts.length} products, success=true, HTTP 200`);
+    res.status(200).json(response);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error("Error fetching products:", errorMessage);
-    console.error("Full error object:", error);
+    console.error("❌ Error fetching products:", errorMessage);
 
-    // Determine error status and provide helpful message
-    let status = 500;
+    // Determine error code and user-facing message
     let code = "PRODUCTS_FETCH_ERROR";
     let userMessage = "Failed to fetch products from Shopify";
 
@@ -86,7 +89,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       errorMessage.includes("authentication") ||
       errorMessage.includes("credentials")
     ) {
-      status = 401;
       code = "SHOPIFY_AUTH_ERROR";
       userMessage = "Shopify authentication failed. Invalid or expired access token.";
     } else if (
@@ -94,7 +96,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       errorMessage.includes("SHOPIFY_SHOP") ||
       errorMessage.includes("environment variables")
     ) {
-      status = 503;
       code = "SHOPIFY_NOT_CONFIGURED";
       userMessage = "Shopify credentials are not configured.";
     } else if (
@@ -103,20 +104,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       errorMessage.includes("ECONNREFUSED") ||
       errorMessage.includes("temporarily unavailable")
     ) {
-      status = 503;
       code = "SHOPIFY_TIMEOUT";
       userMessage = "Shopify server is temporarily unavailable. Please try again later.";
     } else if (
       errorMessage.includes("not found") ||
       errorMessage.includes("404")
     ) {
-      status = 404;
       code = "SHOPIFY_STORE_NOT_FOUND";
       userMessage = "Shopify store could not be found. Check your shop name.";
     }
 
-    res.status(status).json({
+    // Always return 200 OK with error details in response body for consistency
+    // This prevents browser/proxy errors and ensures the client gets the error message
+    console.log(`Returning HTTP 200 with error code: ${code}`);
+    res.status(200).json({
       success: false,
+      products: [],
       error: userMessage,
       details: errorMessage,
       code,
