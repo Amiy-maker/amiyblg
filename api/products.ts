@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getShopifyClient } from './lib/shopify-client.js';
+import { getShopifyClient } from './lib/shopify-client';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
