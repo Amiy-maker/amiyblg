@@ -1,7 +1,12 @@
 import { RequestHandler } from "express";
 import { getShopifyClient } from "../services/shopify-client.js";
 
-export const handleGetProducts: RequestHandler = async (req, res) => {
+// Wrapper to catch async errors and pass to error handler
+const asyncHandler = (fn: RequestHandler): RequestHandler => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+const getProductsHandler: RequestHandler = async (req, res) => {
   try {
     console.log("GET /api/products request received");
     const limit = parseInt(req.query.limit as string) || 250;
