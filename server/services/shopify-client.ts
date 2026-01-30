@@ -615,7 +615,12 @@ export class ShopifyClient {
       }
     `;
 
-    const articleGid = `gid://shopify/Article/${articleId.split('/').pop()}`;
+    // Convert articleId to string and extract numeric ID
+    const articleIdStr = String(articleId);
+    const numericArticleId = articleIdStr.includes('/')
+      ? articleIdStr.split('/').pop()
+      : articleIdStr;
+    const articleGid = `gid://shopify/Article/${numericArticleId}`;
     console.log(`Article GID: ${articleGid}`);
 
     const variables = {
